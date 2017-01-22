@@ -51,7 +51,8 @@ def iter_paragraphs(transcript):
                     yield subchild.get_text()
 
 for president, title, date, href in iter_speeches():
-    speech_html = requests.get(base_url + href).text
+    speech_url = base_url + href
+    speech_html = requests.get(speech_url).text
     # Lincoln's "Cooper Union Address" has some issues.
     speech_html = speech_html.replace('<div id="_mcePaste" style="position: absolute; left: -10000px; top: 120px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">', '<p>')
     soup = BeautifulSoup(speech_html)
@@ -62,5 +63,5 @@ for president, title, date, href in iter_speeches():
         # replace &nbsp; + space with just the space
         text = '\n'.join(paragraphs).replace(u'\xA0 ', ' ')
         timestamp = date.date().isoformat() if date else None
-        speech = dict(president=president, title=title, timestamp=timestamp, text=text)
+        speech = dict(president=president, title=title, timestamp=timestamp, text=text, source=speech_url)
         print json.dumps(speech, sort_keys=True, ensure_ascii=False)
