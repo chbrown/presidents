@@ -31,3 +31,18 @@ Some speeches are dialogues. Potentially useful formatting, like bold-face, has 
 
 * Bill Clinton's "Presidential Debate with Senator Bob Dole (October 6, 1996)"
 * George H. W. Bush's "Debate with Michael Dukakis (September 25, 1988)"
+
+### Sample filters / analyses
+
+Use [`jq`](https://stedolan.github.io/jq/) to get word counts for each speech (this isn't `jq`'s forte, so it's a bit slow), along with the president's name:
+
+    printf "%s\t%s\n" president words
+    <millercenter.json jq -r '[.president, (.text | [scan("\\s+")] | length + 1)] | @tsv'
+
+Select only the inaugural speeches:
+
+    <millercenter.json jq -c 'select(.title | test("Inaugural"))'
+
+Print just the text of William Henry Harrison's record-setting and -holding inaugural speech:
+
+    <millercenter.json jq -r 'select(.president=="William Harrison" and (.title | test("Inaugural"))) | .text'
