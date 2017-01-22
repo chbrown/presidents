@@ -18,7 +18,7 @@
   - Affiliated with the University of Virginia
   - On GitHub at <https://github.com/miller-center>
     - Appendices for `millercenter.org`, not source files
-    - The [First Year 2017]<http://firstyear2017.org/> site seems to be sourced from [@miller-center/first-year](https://github.com/miller-center/first-year)
+    - The [First Year 2017](http://firstyear2017.org/) site seems to be sourced from [@miller-center/first-year](https://github.com/miller-center/first-year)
     - And [Connecting Presidential Collections](http://presidentialcollections.org/) seems to be sourced from [@miller-center/cpc](https://github.com/miller-center/cpc) (which refers to some apparently private repos)
     - [@miller-center/presidential-speeches](https://github.com/miller-center/presidential-speeches)
       + Rag-tag bunch of files with unknown origins
@@ -65,9 +65,10 @@
     + George W. Bush
 
 * [PresidentsUSA.net](http://www.presidentsusa.net/speeches.html)
-  - The purpose of this site is to provide researchers, students, teachers, politicians, journalists, and citizens a complete resource guide to the US Presidents.
+
+  > The purpose of this site is to provide researchers, students, teachers, politicians, journalists, and citizens a complete resource guide to the US Presidents.
   - Affiliated with Yale
-  - Hodgepodge of links to other sites.
+  - Hodgepodge of links to other sites, no original data.
 
 * [PresidentialRhetoric.com](http://www.presidentialrhetoric.com/index.html)
 
