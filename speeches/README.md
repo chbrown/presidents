@@ -11,6 +11,7 @@ These entries look like the following, when pretty printed:
 
     {
       "president": "Barack Obama",
+      "source": "http://millercenter.org/president/obama/speeches/speech-4427",
       "text": "To Chairman Dean [...] Bless the United States of America.",
       "timestamp": "2008-08-28",
       "title": "Acceptance Speech at the Democratic National Convention"
@@ -46,3 +47,24 @@ Select only the inaugural speeches:
 Print just the text of William Henry Harrison's record-setting and -holding inaugural speech:
 
     <millercenter.json jq -r 'select(.president=="William Harrison" and (.title | test("Inaugural"))) | .text'
+
+Tokenize, count, and rank the top 1000 words used in inaugural addresses:
+
+    <millercenter.json jq -r 'select(.title | test("Inaugural")) | .text' |\
+      tr [:upper:] [:lower:] |\
+      tr -C -s "[:alnum:]'" [:space:] | tr -s [:space:] '\n' |\
+      sort | uniq -c | sort -gr |\
+      cat -n | head -1000
+
+Explanation:
+
+| command | explanation |
+|---------|-------------|
+| `tr [:upper:] [:lower:]` | lowercase everything
+| `tr -C -s "[:alnum:]'" [:space:]` | replace every sequence of non-alphanumeric/single-quote with a single space
+| `tr -s [:space:] '\n'` | replace every space with a newline
+| `sort` | sort by word so that `uniq -c` works
+| `uniq -c` | replace repeated lines with a single line of the count + content (streaming, so lines must be sorted beforehand)
+| `sort -gr` | re-sort by count prefix, highest to lowest
+| `cat -n` | number each line
+| `head -1000` | show only the top 1000 words
