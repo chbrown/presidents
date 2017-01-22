@@ -16,18 +16,16 @@
 
   > [...] is a nonpartisan institute that seeks to expand understanding of the presidency, policy, and political history, providing critical insights for the nation's governance challenges.
   - Affiliated with the University of Virginia
+  - On GitHub at <https://github.com/miller-center>
+    - Appendices for `millercenter.org`, not source files
+    - The [First Year 2017]<http://firstyear2017.org/> site seems to be sourced from [@miller-center/first-year](https://github.com/miller-center/first-year)
+    - And [Connecting Presidential Collections](http://presidentialcollections.org/) seems to be sourced from [@miller-center/cpc](https://github.com/miller-center/cpc) (which refers to some apparently private repos)
+    - [@miller-center/presidential-speeches](https://github.com/miller-center/presidential-speeches)
+      + Rag-tag bunch of files with unknown origins
 
-* https://github.com/miller-center
-  - Appendices for millercenter.org, not source files
-  - The [First Year 2017]<http://firstyear2017.org/> site seems to be sourced from [@miller-center/first-year](https://github.com/miller-center/first-year)
-  - And [Connecting Presidential Collections](http://presidentialcollections.org/) seems to be sourced from [@miller-center/cpc](https://github.com/miller-center/cpc) (which refers to some apparently private repos)
-  - [@miller-center/presidential-speeches](https://github.com/miller-center/presidential-speeches)
-    + Rag-tag bunch of files with unknown origins
-
-* <http://obamaspeeches.com/>
-
-  > Best Speeches of Barack Obama through his 2009 Inauguration
-  - Fan site (?)
+  - <https://github.com/jake-mason/Presidential-Speeches>
+    + Python web scraper for `millercenter.org` speeches. One text file per speech, down-cased and de-punctuated, no titles or dates. 962 files total.
+    + Some K-Means clustering analysis in separate script.
 
 * https://github.com/prateekpg2455/U.S-Presidential-Speeches
   - Analysis of only State of the Union addresses from 1790-2006 using Gensim's Word2Vec.
@@ -84,3 +82,15 @@
 
 * Obama:
   - [473 Speeches and Remarks](https://obamawhitehouse.archives.gov/briefing-room/speeches-and-remarks)
+  - <http://obamaspeeches.com/>
+    + "Best Speeches of Barack Obama through his 2009 Inauguration"
+    + Fan site (?)
+
+* Trump:
+  - <https://github.com/ryanmcdermott/trump-speeches>
+    + "1mb of text data taken from speeches made by Donald Trump at various points in his 2016 campaign for President of the United States."
+    + Unclear what his sources are. No metadata. No distinction between documents.
+    + Includes script to generate word cloud with Python
+  - <https://github.com/PedramNavid/trump_speeches>
+    + "All of Trump's Speeches from June 2015 to November 9, 2016"
+    + Scraped from "The American Presidency Project" with Python.
