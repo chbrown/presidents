@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 
 import requests
 import requests_cache
-requests_cache.install_cache('requests_cache')
+requests_cache.install_cache('/tmp/python-requests_cache')
 
 base_url = 'http://millercenter.org'
 date_regex = r'\((\w+ \d+, \d{4})\)'
