@@ -61,7 +61,7 @@ def read_paper(pid):
     url = base_url + '/ws/index.php?pid=' + pid
     soup = get_soup(url)
     # the HTML they generate is awkward, to say the least
-    author, title = soup.find('title').string.split(': ', 1)
+    author, title = soup.find('title').get_text().split(': ', 1)
     date_string = soup.find('span', class_='docdate').string
     date = datetime.strptime(date_string, '%B %d, %Y')
     timestamp = date.date().isoformat()
@@ -70,7 +70,7 @@ def read_paper(pid):
     paragraphs = [paragraph.strip() for paragraph in iter_paragraphs(displaytext) if not paragraph.isspace()]
     text = '\n'.join(paragraphs)
 
-    paper = dict(author=author, title=title, timestamp=timestamp, source=url, text=text)
+    paper = dict(author=author, title=title.strip('.'), timestamp=timestamp, source=url, text=text)
 
     displaynotes = soup.find('span', class_='displaynotes')
     note = displaynotes.get_text(' ') or None
@@ -80,14 +80,41 @@ def read_paper(pid):
 
     return paper
 
-def get_inaugurals():
-    soup = get_soup(base_url + '/inaugurals.php')
-    container = soup.find('span', class_='datatitle').parent
-    for anchor in container.find_all('a'):
-        href = anchor['href']
-        if href.startswith('http://www.presidency.ucsb.edu/ws/index.php?pid='):
-            _, pid = href.split('=')
-            yield pid
+def get_pids(soup):
+    for anchor in soup.select('a[href*="index.php?pid="]'):
+        yield anchor['href'].split('=')[-1]
+
+def get_paragraph_lines(p):
+    for child in p.children:
+        if child.name == 'br':
+            continue
+        elif isinstance(child, NavigableString):
+            yield unicode(child)
+        else:
+            yield child.get_text()
+
+def get_2016_election():
+    soup = get_soup(base_url + '/2016_election.php')
+    container = soup.find('td', class_='doctext').find_parent('table')
+    for td in container.find_all('td', class_='doctext'):
+        paragraphs = td.find_all('p')
+        if len(paragraphs) > 0:
+            info_paragraph, links_paragraph = paragraphs
+            # get candidate information
+            lines = [line.strip() for line in get_paragraph_lines(info_paragraph)
+                if line.strip() not in (u'Candidacy Declared:', 'Status:', '')]
+            name, title, candidacy_declared, status = lines
+            candidate = dict(name=name, title=title, candidacy_declared=candidacy_declared, status=status)
+            # get links to speeches
+            logger.info('Fetching papers for candidate "%r"', candidate)
+            for anchor in links_paragraph.find_all('a'):
+                category = anchor.get_text()
+                logger.info('Fetching papers from category "%s"', category)
+                sub_soup = get_soup(base_url + '/' + anchor['href'])
+                pids = get_pids(sub_soup)
+                for pid in pids:
+                    yield pid
+
 
 def print_papers(pids):
     for pid in pids:
@@ -98,10 +125,16 @@ def fetch_command(opts):
     print_papers(opts.args)
 
 def inaugurals_command(opts):
-    print_papers(get_inaugurals())
+    soup = get_soup(base_url + '/inaugurals.php')
+    pids = get_pids(soup)
+    print_papers(pids)
+
+def election2016_command(opts):
+    pids = get_2016_election()
+    print_papers(pids)
 
 def main():
-    commands = dict(fetch=fetch_command, inaugurals=inaugurals_command)
+    commands = dict(fetch=fetch_command, inaugurals=inaugurals_command, election2016=election2016_command)
 
     parser = argparse.ArgumentParser(
         description='Scrape The American Presidency Project website (http://www.presidency.ucsb.edu/)',
