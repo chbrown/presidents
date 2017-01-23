@@ -73,9 +73,10 @@ def read_paper(pid):
     paper = dict(author=author, title=title, timestamp=timestamp, source=url, text=text)
 
     displaynotes = soup.find('span', class_='displaynotes')
-    note = displaynotes.get_text() or None
+    note = displaynotes.get_text(' ') or None
     if note:
-        paper['note'] = note
+        # remove "Note: " prefix if present
+        paper['note'] = re.sub(r'^note:\s+', '', note, flags=re.I)
 
     return paper
 
