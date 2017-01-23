@@ -6,7 +6,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup, element
 # suppress BeautifulSoup warning; I want to use the best available parser, but I don't care which
 import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
+warnings.filterwarnings('ignore', category=UserWarning, module='bs4')
 
 import requests
 import requests_cache
@@ -27,14 +27,14 @@ def split_title(title):
 def iter_speeches():
     speeches_html = requests.get(base_url + '/president/speeches').text
     soup = BeautifulSoup(speeches_html)
-    current_president = None
-    for child in soup.find(id="listing").children:
+    current_author = None
+    for child in soup.find(id='listing').children:
         if child.name == 'h2':
-            current_president = child.contents[0].strip()
+            current_author = child.contents[0].strip()
         elif child.name == 'div':
             for anchor in child.select('.title a'):
                 title, date = split_title(anchor.text)
-                yield current_president, title, date, anchor['href']
+                yield current_author, title, date, anchor['href']
 
 def iter_paragraphs(transcript):
     for child in transcript.children:
@@ -51,7 +51,7 @@ def iter_paragraphs(transcript):
                 else:
                     yield subchild.get_text()
 
-for president, title, date, href in iter_speeches():
+for author, title, date, href in iter_speeches():
     speech_url = base_url + href
     speech_html = requests.get(speech_url).text
     # Lincoln's "Cooper Union Address" has some issues.
@@ -64,5 +64,5 @@ for president, title, date, href in iter_speeches():
         # replace &nbsp; + space with just the space
         text = '\n'.join(paragraphs).replace(u'\xA0 ', ' ')
         timestamp = date.date().isoformat() if date else None
-        speech = dict(president=president, title=title, timestamp=timestamp, text=text, source=speech_url)
+        speech = dict(author=author, title=title, timestamp=timestamp, text=text, source=speech_url)
         print json.dumps(speech, sort_keys=True, ensure_ascii=False)
