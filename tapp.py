@@ -2,6 +2,7 @@
 import logging
 import argparse
 import json
+import re
 from datetime import datetime
 
 from bs4 import BeautifulSoup
@@ -17,26 +18,48 @@ logger = logging.getLogger('tapp')
 
 base_url = 'http://www.presidency.ucsb.edu'
 
-def to_unicode(element):
-    if isinstance(element, NavigableString):
-        return unicode(element)
-    else:
-        return element.get_text()
+def reencode_response(response):
+    '''
+    Re-interpret the encoding on the fly if specified as a meta header, e.g.:
 
-def read_displaytext(displaytext):
-    # yes, they really do nest a bunch of paragraphs inside a span!
-    for child in displaytext.children:
+        <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1251">
+
+    If the Content-Type is not specified in the HTTP headers, Python requests
+    defaults to ISO-8859-1, which is close to TAPP's usual windows-1251, but not
+    quite the same.
+    '''
+    content_type = re.search(r'<meta.+charset=([a-z0-9-]+)', response.content, re.I)
+    if content_type:
+        encoding = content_type.group(1)
+        logger.debug('Setting encoding to "%s"', encoding)
+        response.encoding = encoding
+    return response
+
+def get_soup(url):
+    logger.info('Fetching "%s"', url)
+    response = reencode_response(requests.get(url))
+    return BeautifulSoup(response.text)
+
+def iter_paragraphs(element):
+    '''
+    Loop over `element`'s children, treating each child as a paragraph if it's a
+    string, or each of that child's children as a paragraph if it's an element.
+
+    And yes, they really do nest a bunch of paragraphs inside a span!
+    '''
+    for child in element.children:
         if isinstance(child, NavigableString):
             yield unicode(child)
         else:
             for subchild in child.children:
-                yield to_unicode(subchild)
+                if isinstance(subchild, NavigableString):
+                    yield unicode(subchild)
+                else:
+                    yield subchild.get_text()
 
 def read_paper(pid):
     url = base_url + '/ws/index.php?pid=' + pid
-    logger.info('Fetching "%s"', url)
-    html = requests.get(url).text
-    soup = BeautifulSoup(html)
+    soup = get_soup(url)
     # the HTML they generate is awkward, to say the least
     author, title = soup.find('title').string.split(': ', 1)
     date_string = soup.find('span', class_='docdate').string
@@ -44,33 +67,53 @@ def read_paper(pid):
     timestamp = date.date().isoformat()
 
     displaytext = soup.find('span', class_='displaytext')
-    paragraphs = read_displaytext(displaytext)
-    text = '\n'.join(paragraph.strip() for paragraph in paragraphs if not paragraph.isspace())
+    paragraphs = [paragraph.strip() for paragraph in iter_paragraphs(displaytext) if not paragraph.isspace()]
+    text = '\n'.join(paragraphs)
+
+    paper = dict(author=author, title=title, timestamp=timestamp, source=url, text=text)
 
     displaynotes = soup.find('span', class_='displaynotes')
     note = displaynotes.get_text() or None
+    if note:
+        paper['note'] = note
 
-    return dict(author=author, title=title, timestamp=timestamp, source=url, note=note, text=text)
+    return paper
+
+def get_inaugurals():
+    soup = get_soup(base_url + '/inaugurals.php')
+    container = soup.find('span', class_='datatitle').parent
+    for anchor in container.find_all('a'):
+        href = anchor['href']
+        if href.startswith('http://www.presidency.ucsb.edu/ws/index.php?pid='):
+            _, pid = href.split('=')
+            yield pid
+
+def print_papers(pids):
+    for pid in pids:
+        paper = read_paper(pid)
+        print json.dumps(paper, sort_keys=True, ensure_ascii=False)
+
+def fetch_command(opts):
+    print_papers(opts.args)
+
+def inaugurals_command(opts):
+    print_papers(get_inaugurals())
 
 def main():
-    commands = dict(fetch=read_paper)
+    commands = dict(fetch=fetch_command, inaugurals=inaugurals_command)
 
     parser = argparse.ArgumentParser(
         description='Scrape The American Presidency Project website (http://www.presidency.ucsb.edu/)',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--verbose', action='store_true', help='Log extra information')
     parser.add_argument('command', choices=commands, help='Command')
-    parser.add_argument('args', nargs='+', help='Arguments to command')
+    parser.add_argument('args', nargs='*', help='Arguments to command')
     opts = parser.parse_args()
 
-    logging.basicConfig(level=logging.DEBUG if opts.verbose else logging.WARN)
+    logging.basicConfig(level=logging.INFO if opts.verbose else logging.WARN)
 
     command = commands[opts.command]
-
-    for arg in opts.args:
-        result = command(arg)
-        obj = {k: v for k, v in result.items() if v is not None}
-        print json.dumps(obj, sort_keys=True, ensure_ascii=False)
+    command(opts)
 
 if __name__ == '__main__':
     main()
