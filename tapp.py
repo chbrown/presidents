@@ -125,9 +125,24 @@ def fetch_command(opts):
     print_papers(opts.args)
 
 def inaugurals_command(opts):
+    ordinals = ['Zeroth', 'First', 'Second', 'Third', 'Fourth']
     soup = get_soup(base_url + '/inaugurals.php')
     pids = get_pids(soup)
-    print_papers(pids)
+    # TAPP doesn't title (number) each inaugural distinctly
+    authors = dict()
+    for pid in pids:
+        paper = read_paper(pid)
+        author = paper['author']
+        nth = authors[author] = authors.get(author, 0) + 1
+        # TAPP does not use consistent titles; e.g.,
+        #   Richard Nixon gets "Oath of Office and Second Inaugural Address"
+        #   Lyndon B. Johnson gets "The President's Inaugural Address"
+        # So we generate titles consistent with Miller Center's titles
+        title = 'Inaugural Address'
+        if nth > 1:
+            title = ordinals[nth] + ' ' + title
+        paper['title'] = title
+        print json.dumps(paper, sort_keys=True, ensure_ascii=False)
 
 def election2016_command(opts):
     pids = get_2016_election()
