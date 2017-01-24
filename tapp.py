@@ -18,6 +18,10 @@ logger = logging.getLogger('tapp')
 
 base_url = 'http://www.presidency.ucsb.edu'
 
+empty = lambda xs: len(xs) == 0
+not_empty = lambda xs: len(xs) != 0
+strip = lambda s: s.strip()
+
 def reencode_response(response):
     '''
     Re-interpret the encoding on the fly if specified as a meta header, e.g.:
@@ -40,7 +44,7 @@ def get_soup(url):
     response = reencode_response(requests.get(url))
     return BeautifulSoup(response.text)
 
-def iter_paragraphs(element):
+def iter_texts(element):
     '''
     Loop over `element`'s children, treating each child as a paragraph if it's a
     string, or each of that child's children as a paragraph if it's an element.
@@ -48,14 +52,24 @@ def iter_paragraphs(element):
     And yes, they really do nest a bunch of paragraphs inside a span!
     '''
     for child in element.children:
+        # we want to collect contiguous spans of strings or non-block elements as a single paragraph
         if isinstance(child, NavigableString):
             yield unicode(child)
+        elif child.name == 'b' or child.name == 'i':
+            yield child.get_text()
+        elif child.name == 'p':
+            yield '\n' + child.get_text() + '\n'
+        elif child.name == 'br':
+            yield '\n'
+        elif child.name == 'ol' or child.name == 'ul':
+            for text in iter_texts(child):
+                yield text
+        elif child.name == 'li':
+            yield '\n* ' + child.get_text() + '\n'
         else:
-            for subchild in child.children:
-                if isinstance(subchild, NavigableString):
-                    yield unicode(subchild)
-                else:
-                    yield subchild.get_text()
+            logger.debug("Unrecognized '.displaytext' child: %r", child)
+            for text in iter_texts(child):
+                yield text
 
 def read_paper(pid):
     url = base_url + '/ws/index.php?pid=' + pid
@@ -67,8 +81,8 @@ def read_paper(pid):
     timestamp = date.date().isoformat()
 
     displaytext = soup.find('span', class_='displaytext')
-    paragraphs = [paragraph.strip() for paragraph in iter_paragraphs(displaytext) if not paragraph.isspace()]
-    text = '\n'.join(paragraphs)
+    lines = ''.join(iter_texts(displaytext)).split('\n')
+    text = '\n'.join(filter(not_empty, map(strip, lines)))
 
     paper = dict(author=author, title=title.strip('.'), timestamp=timestamp, source=url, text=text)
 
@@ -113,7 +127,7 @@ def get_2016_election():
                 sub_soup = get_soup(base_url + '/' + anchor['href'])
                 pids = get_pids(sub_soup)
                 for pid in pids:
-                    yield pid
+                    yield candidate, category, pid
 
 
 def print_papers(pids):
@@ -145,8 +159,13 @@ def inaugurals_command(opts):
         print json.dumps(paper, sort_keys=True, ensure_ascii=False)
 
 def election2016_command(opts):
-    pids = get_2016_election()
-    print_papers(pids)
+    for candidate, category, pid in get_2016_election():
+        paper = read_paper(pid)
+        if candidate['name'] != paper['author']:
+            logger.warn('candidate name "%s" does not match paper author "%s" (%s)',
+                candidate['name'], paper['author'], pid)
+        paper['category'] = category
+        print json.dumps(paper, sort_keys=True, ensure_ascii=False)
 
 def main():
     commands = dict(fetch=fetch_command, inaugurals=inaugurals_command, election2016=election2016_command)
