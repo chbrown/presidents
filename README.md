@@ -167,3 +167,8 @@ Explanation:
   - <https://github.com/PedramNavid/trump_speeches>
     + "All of Trump's Speeches from June 2015 to November 9, 2016"
     + Scraped from "The American Presidency Project" with Python.
+  - <http://archive.org/details/trumparchive>
+
+    > The Trump Archive collects TV news shows containing debates, speeches, rallies, and other broadcasts related to President-elect Donald Trump. This evolving non-commercial, searchable collection is designed to preserve the historical record for posterity.
+    + Primarily a source of video, but most (all?) has the (messy) closed captions for the footage.
+    + These are timestamped, which is potentially useful for determining rate of speech, or for proportion of airtime claimed in a debate.
