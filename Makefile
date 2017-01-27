@@ -12,3 +12,10 @@ data/tapp/election2016.json:
 
 data/tapp/inaugurals.json:
 	python src/cli.py tapp-inaugurals > $@
+
+
+data/trump.json:
+	: > $@
+	python src/cli.py abcnews Politics/transcript-abc-news-anchor-david-muir-interviews-president/story?id=45047602 >> $@
+	python src/cli.py cspan 422829-1 >> $@
+	python src/cli.py cbsnews news/trump-cia-speech-transcript >> $@
