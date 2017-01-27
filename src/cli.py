@@ -5,6 +5,7 @@ import logging
 import json
 # sources
 import abcnews
+import cbsnews
 import cspan
 import millercenter
 import tapp
@@ -13,6 +14,7 @@ import tapp
 # of standard speech dicts
 commands = {
     'abcnews': lambda opts: (abcnews.fetch(page_url) for page_url in opts.args),
+    'cbsnews': lambda opts: (cbsnews.fetch(page_url) for page_url in opts.args),
     'cspan': lambda opts: (cspan.fetch(program_id) for program_id in opts.args),
     'millercenter': lambda opts: millercenter.fetch_speeches(),
     'tapp': lambda opts: (tapp.fetch(pid) for pid in opts.args),
