@@ -69,13 +69,17 @@ _excluded_tzname_prefixes = (
     'Brazil/',
     'Africa/',
     'Antarctica/', 'Arctic/')
-_tzinfos = {name: dateutil.tz.gettz(name)
-            for name in pytz.all_timezones
-            if not name.startswith(_excluded_tzname_prefixes)}
+tzinfos = {name: dateutil.tz.gettz(name)
+           for name in pytz.all_timezones
+           if not name.startswith(_excluded_tzname_prefixes)}
 # _tz_aliases is a hack for 2-letter abbreviations
 _tz_aliases = {'PT': 'US/Pacific', 'MT': 'US/Mountain', 'CT': 'US/Central', 'ET': 'US/Eastern'}
 for alias in _tz_aliases:
-    _tzinfos[alias] = _tzinfos[_tz_aliases[alias]]
+    tzinfos[alias] = tzinfos[_tz_aliases[alias]]
 
-def parse_date(s):
-    return dateutil.parser.parse(s, fuzzy=True, tzinfos=_tzinfos)
+def parse_date(s, default_tzinfo=None):
+    date = dateutil.parser.parse(s, fuzzy=True, tzinfos=tzinfos)
+    if default_tzinfo is not None:
+        logger.debug('Setting timezone for %s to default: %s', date, default_tzinfo)
+        date = date.replace(tzinfo=date.tzinfo or default_tzinfo)
+    return date
