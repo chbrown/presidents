@@ -4,7 +4,7 @@ import argparse
 import logging
 import json
 # sources
-import abc
+import abcnews
 import cspan
 import millercenter
 import tapp
@@ -12,7 +12,7 @@ import tapp
 # each command should be a function from an argparse opts object to an iterable
 # of standard speech dicts
 commands = {
-    'abc': lambda opts: (abc.fetch(page_url) for page_url in opts.args),
+    'abcnews': lambda opts: (abcnews.fetch(page_url) for page_url in opts.args),
     'cspan': lambda opts: (cspan.fetch(program_id) for program_id in opts.args),
     'millercenter': lambda opts: millercenter.fetch_speeches(),
     'tapp': lambda opts: (tapp.fetch(pid) for pid in opts.args),
