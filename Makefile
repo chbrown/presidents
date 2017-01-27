@@ -1,12 +1,14 @@
 all: data/millercenter/speeches.json data/tapp/election2016.json data/tapp/inaugurals.json
 
+# pre-requisite for all of these commands:
+# pip install -r requirements.txt
+
 data/millercenter/speeches.json:
-	pip install requests==2.12.5 requests-cache==0.4.13 beautifulsoup4==4.5.3
-	python millercenter.py > $@
+	python src/cli.py millercenter > $@
 
 # this takes ~20 minutes even with all the pages already cached
 data/tapp/election2016.json:
-	python tapp.py election2016 > $@
+	python src/cli.py tapp-election2016 > $@
 
 data/tapp/inaugurals.json:
-	python tapp.py inaugurals > $@
+	python src/cli.py tapp-inaugurals > $@
