@@ -14,7 +14,6 @@ data/tapp/election2016.json:
 data/tapp/election2012.json:
 	python src/cli.py tapp-election2012 > $@
 
-# this takes ~23 minutes, including fetching the pages
 data/tapp/election2008.json:
 	python src/cli.py tapp-election2008 > $@
 

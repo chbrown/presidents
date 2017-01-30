@@ -1,7 +1,8 @@
 import re
 from datetime import datetime
+from bs4 import BeautifulSoup
 from bs4.element import NavigableString
-from __init__ import not_empty, strip, get_soup, parse_date, logger
+from __init__ import not_empty, strip, get_soup, get_html, parse_date, logger
 
 base_url = 'http://www.presidency.ucsb.edu'
 
@@ -97,7 +98,13 @@ def fetch_election(year):
     Fetch all papers related to an election campaign; year should be one of:
     2016, 2012, 2008, 2004, 1960
     '''
-    soup = get_soup(base_url + '/' + year + '_election.php')
+    year_html = get_html(base_url + '/' + year + '_election.php')
+    if year == '2008':
+        # fix weird issue in Fred Thompson's entry
+        year_html = year_html.replace(
+            'Status: withdrew on <span class="docdate">',
+            'Status: <span class="docdate">withdrew on ')
+    soup = BeautifulSoup(year_html)
     container = soup.find('td', class_='doctext').find_parent('table')
     for td in container.find_all('td', class_='doctext'):
         paragraphs = td.find_all('p')
