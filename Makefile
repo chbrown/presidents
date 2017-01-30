@@ -10,6 +10,12 @@ data/millercenter/speeches.json:
 data/tapp/election2016.json:
 	python src/cli.py tapp-election2016 > $@
 
+data/tapp/election2012.json:
+	python src/cli.py tapp-election2012 > $@
+
+data/tapp/election2008.json:
+	python src/cli.py tapp-election2008 > $@
+
 data/tapp/inaugurals.json:
 	python src/cli.py tapp-inaugurals > $@
 

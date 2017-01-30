@@ -74,27 +74,47 @@ def _get_paragraph_lines(p):
         else:
             yield child.get_text()
 
-def get_2016_election():
-    soup = get_soup(base_url + '/2016_election.php')
+def _get_candidate_info(info_paragraph):
+    '''
+    Parse candidate information
+    '''
+    lines = [line.strip() for line in _get_paragraph_lines(info_paragraph)
+        if line.strip() not in (u'Candidacy Declared:', 'Status:', '')]
+    name, title, candidacy_declared, status = lines
+    return dict(name=name, title=title, candidacy_declared=candidacy_declared, status=status)
+
+def _iter_candidate_categories(links_paragraph):
+    '''
+    Parse links to speeches / statements / press releases / etc.
+    '''
+    for anchor in links_paragraph.find_all('a'):
+        category = anchor.get_text()
+        url = base_url + '/' + anchor['href']
+        yield category, url
+
+def fetch_election(year):
+    '''
+    Fetch all papers related in to an election campaign; year should be one of:
+    2016, 2012, 2008, 2004, 1960
+    '''
+    soup = get_soup(base_url + '/' + year + '_election.php')
     container = soup.find('td', class_='doctext').find_parent('table')
     for td in container.find_all('td', class_='doctext'):
         paragraphs = td.find_all('p')
         if len(paragraphs) > 0:
             info_paragraph, links_paragraph = paragraphs
-            # get candidate information
-            lines = [line.strip() for line in _get_paragraph_lines(info_paragraph)
-                if line.strip() not in (u'Candidacy Declared:', 'Status:', '')]
-            name, title, candidacy_declared, status = lines
-            candidate = dict(name=name, title=title, candidacy_declared=candidacy_declared, status=status)
-            # get links to speeches
-            logger.info('Fetching papers for candidate "%r"', candidate)
-            for anchor in links_paragraph.find_all('a'):
-                category = anchor.get_text()
+            candidate = _get_candidate_info(info_paragraph)
+            for category, category_url in _iter_candidate_categories(links_paragraph):
                 logger.info('Fetching papers from category "%s"', category)
-                sub_soup = get_soup(base_url + '/' + anchor['href'])
-                pids = _get_pids(sub_soup)
-                for pid in pids:
-                    yield candidate, category, pid
+                category_soup = get_soup(category_url)
+                category_pids = _get_pids(category_soup)
+                for pid in category_pids:
+                    paper = fetch(pid)
+                    if candidate['name'] != paper['author']:
+                        logger.warn('candidate name "%s" does not match paper author "%s" (%s)',
+                            candidate['name'], paper['author'], pid)
+                    paper['category'] = category
+                    yield paper
 
 def fetch_inaugurals():
     ordinals = ['Zeroth', 'First', 'Second', 'Third', 'Fourth']
@@ -114,13 +134,4 @@ def fetch_inaugurals():
         if nth > 1:
             title = ordinals[nth] + ' ' + title
         paper['title'] = title
-        yield paper
-
-def fetch_election2016():
-    for candidate, category, pid in get_2016_election():
-        paper = _read_paper(pid)
-        if candidate['name'] != paper['author']:
-            logger.warn('candidate name "%s" does not match paper author "%s" (%s)',
-                candidate['name'], paper['author'], pid)
-        paper['category'] = category
         yield paper

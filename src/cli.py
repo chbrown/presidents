@@ -19,7 +19,9 @@ commands = {
     'millercenter': lambda opts: millercenter.fetch_speeches(),
     'tapp': lambda opts: (tapp.fetch(pid) for pid in opts.args),
     'tapp-inaugurals': lambda opts: tapp.fetch_inaugurals(),
-    'tapp-election2016': lambda opts: tapp.fetch_election2016(),
+    'tapp-election2016': lambda opts: tapp.fetch_election('2016'),
+    'tapp-election2012': lambda opts: tapp.fetch_election('2012'),
+    'tapp-election2008': lambda opts: tapp.fetch_election('2008'),
 }
 
 verbosity_levels = [logging.WARN, logging.INFO, logging.DEBUG, logging.NOTSET]
