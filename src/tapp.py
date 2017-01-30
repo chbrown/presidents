@@ -64,7 +64,7 @@ def fetch(pid):
 
 def _get_pids(soup):
     for anchor in soup.select('a[href*="index.php?pid="]'):
-        yield anchor['href'].split('=')[-1]
+        yield re.search(r'pid=(\d+)', anchor['href']).group(1)
 
 def _get_paragraph_lines(p):
     for child in p.children:
@@ -149,6 +149,12 @@ def fetch_transition(year):
     2017, 2009, 2001
     '''
     soup = get_soup(base_url + '/transition' + year + '.php')
+    for pid in _get_pids(soup):
+        paper = fetch(pid)
+        yield paper
+
+def fetch_listing(params):
+    soup = get_soup(base_url + '/ws/index.php', params=params)
     for pid in _get_pids(soup):
         paper = fetch(pid)
         yield paper
