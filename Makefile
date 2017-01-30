@@ -18,6 +18,12 @@ data/tapp/election2012.json:
 data/tapp/election2008.json:
 	python src/cli.py tapp-election2008 > $@
 
+data/tapp/election2004.json:
+	python src/cli.py tapp-election2004 > $@
+
+data/tapp/election1960.json:
+	python src/cli.py tapp-election1960 > $@
+
 data/tapp/inaugurals.json:
 	python src/cli.py tapp-inaugurals > $@
 
