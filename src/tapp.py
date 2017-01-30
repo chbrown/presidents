@@ -94,7 +94,7 @@ def _iter_candidate_categories(links_paragraph):
 
 def fetch_election(year):
     '''
-    Fetch all papers related in to an election campaign; year should be one of:
+    Fetch all papers related to an election campaign; year should be one of:
     2016, 2012, 2008, 2004, 1960
     '''
     soup = get_soup(base_url + '/' + year + '_election.php')
@@ -134,4 +134,14 @@ def fetch_inaugurals():
         if nth > 1:
             title = ordinals[nth] + ' ' + title
         paper['title'] = title
+        yield paper
+
+def fetch_transition(year):
+    '''
+    Fetch all papers related to a presidential transition; year should be one of:
+    2017, 2009, 2001
+    '''
+    soup = get_soup(base_url + '/transition' + year + '.php')
+    for pid in _get_pids(soup):
+        paper = fetch(pid)
         yield paper

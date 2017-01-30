@@ -27,6 +27,15 @@ data/tapp/election1960.json:
 data/tapp/inaugurals.json:
 	python src/cli.py tapp-inaugurals > $@
 
+data/tapp/transition2017.json:
+	python src/cli.py tapp-transition2017 > $@
+
+data/tapp/transition2009.json:
+	python src/cli.py tapp-transition2009 > $@
+
+data/tapp/transition2001.json:
+	python src/cli.py tapp-transition2001 > $@
+
 
 data/trump.json:
 	: > $@

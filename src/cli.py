@@ -24,6 +24,9 @@ commands = {
     'tapp-election2008': lambda opts: tapp.fetch_election('2008'),
     'tapp-election2004': lambda opts: tapp.fetch_election('2004'),
     'tapp-election1960': lambda opts: tapp.fetch_election('1960'),
+    'tapp-transition2017': lambda opts: tapp.fetch_transition('2017'),
+    'tapp-transition2009': lambda opts: tapp.fetch_transition('2009'),
+    'tapp-transition2001': lambda opts: tapp.fetch_transition('2001'),
 }
 
 verbosity_levels = [logging.WARN, logging.INFO, logging.DEBUG, logging.NOTSET]
