@@ -57,10 +57,13 @@ def reencode_response(response):
         response.encoding = encoding
     return response
 
-def get_soup(url):
+def get_html(url):
     logger.info('Fetching "%s"', url)
     response = reencode_response(requests.get(url))
-    return BeautifulSoup(response.text)
+    return response.text
+
+def get_soup(url):
+    return BeautifulSoup(get_html(url))
 
 _excluded_tzname_prefixes = (
     'Etc/',
