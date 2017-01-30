@@ -3,7 +3,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 import requests
-from __init__ import get_soup, parse_date
+from __init__ import logger, get_soup, parse_date
 
 base_url = 'http://millercenter.org'
 
@@ -50,6 +50,11 @@ def fetch_speeches():
         # Lincoln's "Cooper Union Address" has some issues :(
         speech_html = speech_html.replace('<div id="_mcePaste" style="position: absolute; left: -10000px; top: 120px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">', '<p>')
         soup = BeautifulSoup(speech_html)
+        # Herbert Hoover's "Campaign speech in Indianapolis, Indiana" has even worse issues :(
+        if author == 'Herbert Hoover' and title == 'Campaign speech in Indianapolis, Indiana.':
+            logger.info("Fixing Hoover's Indianapolis speech")
+            transcript_p = soup.find(id='description').next_sibling.extract()
+            soup.find(id='transcript').append(transcript_p)
         transcript = soup.find(id='transcript')
         # two of the speeches have missing transcripts :(
         if transcript:
