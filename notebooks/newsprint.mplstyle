@@ -1,0 +1,8 @@
+font.size : 11.0
+font.serif : Times New Roman
+font.sans-serif : Arial
+font.family : sans-serif
+figure.figsize : 8.5, 5.5
+figure.dpi : 116
+#grid.linestyle : :
+grid.color : lightgray
