@@ -1,10 +1,11 @@
+import os
 import re
 import logging
 logger = logging.getLogger('presidents')
 
 import requests
 import requests_cache
-requests_cache_filepath = '/tmp/python-requests_cache'
+requests_cache_filepath = os.getenv('PYTHON_REQUESTS_CACHE', '/tmp/python-requests_cache')
 requests_cache.install_cache(requests_cache_filepath)
 logger.debug('using HTTP requests cache at %s', requests_cache_filepath)
 
