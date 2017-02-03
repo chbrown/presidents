@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import sys
+import json
 import argparse
 import logging
-import json
+logging.basicConfig(level=logging.NOTSET)
 # sources
 import abcnews
 import cbsnews
