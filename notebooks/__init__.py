@@ -38,6 +38,7 @@ stopwords = {
     'postgresql': set(read_strings('stopwords/postgresql-english.txt')),
     'nltk': set(read_strings('stopwords/nltk-english.txt')),
     'google_1t': set(read_strings('stopwords/google-1t.txt')),
+    'datomic': set(read_strings('stopwords/datomic.txt')),
     'alphabet': set(string.ascii_lowercase),
     'contraction_suffixes': {'s', 'm', 're', 've', 'll', 'd', 't'},
     'contraction_prefixes': {'don', 'isn'},
