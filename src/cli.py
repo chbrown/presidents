@@ -10,6 +10,7 @@ import cbsnews
 import cspan
 import millercenter
 import tapp
+import whitehouse
 
 def tapp_listing(opts):
     params = dict(includepress='1')
@@ -37,6 +38,7 @@ commands = {
     'tapp-transition2009': lambda opts: tapp.fetch_transition('2009'),
     'tapp-transition2001': lambda opts: tapp.fetch_transition('2001'),
     'tapp-listing': tapp_listing,
+    'whitehouse': lambda opts: whitehouse.fetch_all(opts.args),
 }
 
 verbosity_levels = [logging.WARN, logging.INFO, logging.DEBUG, logging.NOTSET]
@@ -52,7 +54,7 @@ def main():
     subparsers = parser.add_subparsers(dest='command', help='Command')
     command_parsers = {k: subparsers.add_parser(k) for k in commands}
     # a couple commands take variable args
-    for k in ['abcnews', 'cbsnews', 'cspan', 'tapp']:
+    for k in ['abcnews', 'cbsnews', 'cspan', 'tapp', 'whitehouse']:
         command_parsers[k].add_argument('args', nargs='*', help='arguments to command')
     # tapp-listing gets special arguments
     tapp_listing_parser = command_parsers['tapp-listing']
