@@ -72,7 +72,43 @@ Explanation:
 
 ## The American Presidency Project
 
-...
+### Election 2016
+
+`data/tapp/election2016.json` stats:
+
+Categories:
+
+| count |     category      |
+|------:|:------------------|
+|   383 | campaign speeches |
+|   834 | statements        |
+|  6279 | press releases    |
+
+Authors:
+
+| count |      author     |
+|------:|:----------------|
+|     1 | Carly Fiorina   |
+|    10 | Lincoln Chafee  |
+|    36 | Martin O'Malley |
+|    51 | George Pataki   |
+|    65 | Rand Paul       |
+|    65 | Jim Webb        |
+|    93 | Scott Walker    |
+|   116 | Bobby Jindal    |
+|   122 | Ben Carson      |
+|   124 | Chris Christie  |
+|   171 | Lindsey Graham  |
+|   214 | Mike Huckabee   |
+|   311 | Rick Perry      |
+|   314 | Jeb Bush        |
+|   340 | Donald J. Trump |
+|   427 | Rick Santorum   |
+|   498 | John Kasich     |
+|   602 | Ted Cruz        |
+|   694 | Bernie Sanders  |
+|   738 | Marco Rubio     |
+|  2504 | Hillary Clinton |
 
 
 # Data sources
@@ -172,3 +208,4 @@ Explanation:
     > The Trump Archive collects TV news shows containing debates, speeches, rallies, and other broadcasts related to President-elect Donald Trump. This evolving non-commercial, searchable collection is designed to preserve the historical record for posterity.
     + Primarily a source of video, but most (all?) has the (messy) closed captions for the footage.
     + These are timestamped, which is potentially useful for determining rate of speech, or for proportion of airtime claimed in a debate.
+  - <https://www.whitehouse.gov/briefing-room/presidential-actions/executive-orders>
