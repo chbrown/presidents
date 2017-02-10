@@ -24,11 +24,45 @@ not_empty = lambda xs: len(xs) != 0
 # because str.strip and unicode.strip are not the same
 strip = lambda s: s.strip()
 
-def get_text(element):
+def iter_texts(element):
+    '''
+    Recurse into a single BeautifulSoup element, generically extracting legible
+    text as unicode strings
+    '''
+    # we want to collect contiguous spans of strings or non-block elements as a single paragraph
     if isinstance(element, NavigableString):
-        return unicode(element)
+        yield unicode(element)
+    elif element.name == 'li':
+        yield u'\n'
+        yield u'* '
+        for child in element.children:
+            for text in iter_texts(child):
+                yield text
+        yield u'\n'
+    elif element.name in {'br', 'hr'}:
+        yield u'\n'
+    elif element.name in {'p', 'div', 'ol', 'ul'}:
+        yield u'\n'
+        for child in element.children:
+            for text in iter_texts(child):
+                yield text
+        yield u'\n'
     else:
-        return element.get_text()
+        for child in element.children:
+            for text in iter_texts(child):
+                yield text
+
+def iter_lines(*elements):
+    '''
+    Iterate over all texts in elements using iter_texts(element), merging
+    contiguous line breaks, yielding individual lines as unicode strings
+    '''
+    texts = (text for element in elements for text in iter_texts(element))
+    lines = u''.join(texts).split(u'\n')
+    for line in lines:
+        stripped_line = line.strip()
+        if len(stripped_line) != 0:
+            yield stripped_line
 
 def iter_datalist_pairs(dl_soup):
     '''
