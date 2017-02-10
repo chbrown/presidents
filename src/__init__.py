@@ -77,7 +77,10 @@ tzinfos = {name: dateutil.tz.gettz(name)
            for name in pytz.all_timezones
            if not name.startswith(_excluded_tzname_prefixes)}
 # _tz_aliases is a hack for 2-letter abbreviations
-_tz_aliases = {'PT': 'US/Pacific', 'MT': 'US/Mountain', 'CT': 'US/Central', 'ET': 'US/Eastern'}
+_tz_aliases = {'PT': 'US/Pacific',
+               'MT': 'US/Mountain',
+               'CT': 'US/Central',
+               'ET': 'US/Eastern'}
 for alias in _tz_aliases:
     tzinfos[alias] = tzinfos[_tz_aliases[alias]]
 
