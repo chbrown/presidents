@@ -1,43 +1,45 @@
 all: data/millercenter/speeches.json data/tapp/election2016.json data/tapp/inaugurals.json
 
+SCRAPE := python scraping/cli.py
+
 # pre-requisite for all of these commands:
 # pip install -r requirements.txt
 
 data/millercenter/speeches.json:
-	python src/cli.py millercenter > $@
+	 millercenter > $@
 
 # this takes ~20 minutes even with all the pages already cached
 data/tapp/election2016.json:
-	python src/cli.py tapp-election2016 > $@
+	$(SCRAPE) tapp-election2016 > $@
 
 # this takes ~22 minutes, including fetching the pages
 data/tapp/election2012.json:
-	python src/cli.py tapp-election2012 > $@
+	$(SCRAPE) tapp-election2012 > $@
 
 data/tapp/election2008.json:
-	python src/cli.py tapp-election2008 > $@
+	$(SCRAPE) tapp-election2008 > $@
 
 data/tapp/election2004.json:
-	python src/cli.py tapp-election2004 > $@
+	$(SCRAPE) tapp-election2004 > $@
 
 data/tapp/election1960.json:
-	python src/cli.py tapp-election1960 > $@
+	$(SCRAPE) tapp-election1960 > $@
 
 data/tapp/inaugurals.json:
-	python src/cli.py tapp-inaugurals > $@
+	$(SCRAPE) tapp-inaugurals > $@
 
 data/tapp/transition2017.json:
-	python src/cli.py tapp-transition2017 > $@
+	$(SCRAPE) tapp-transition2017 > $@
 
 data/tapp/transition2009.json:
-	python src/cli.py tapp-transition2009 > $@
+	$(SCRAPE) tapp-transition2009 > $@
 
 data/tapp/transition2001.json:
-	python src/cli.py tapp-transition2001 > $@
+	$(SCRAPE) tapp-transition2001 > $@
 
 
 data/trump.json:
 	: > $@
-	python src/cli.py abcnews Politics/transcript-abc-news-anchor-david-muir-interviews-president/story?id=45047602 >> $@
-	python src/cli.py cspan 422829-1 >> $@
-	python src/cli.py cbsnews news/trump-cia-speech-transcript >> $@
+	$(SCRAPE) abcnews Politics/transcript-abc-news-anchor-david-muir-interviews-president/story?id=45047602 >> $@
+	$(SCRAPE) cspan 422829-1 >> $@
+	$(SCRAPE) cbsnews news/trump-cia-speech-transcript >> $@
