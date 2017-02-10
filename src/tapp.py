@@ -2,38 +2,9 @@ import re
 from datetime import datetime
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
-from __init__ import not_empty, strip, get_soup, get_html, parse_date, logger
+from __init__ import get_soup, get_html, iter_lines, parse_date, logger
 
 base_url = 'http://www.presidency.ucsb.edu'
-
-def _iter_texts(element):
-    '''
-    Loop over `element`'s children, treating each child as a paragraph if it's a
-    string, or each of that child's children as a paragraph if it's an element.
-
-    And yes, they really do nest a bunch of paragraphs inside a span!
-    '''
-    for child in element.children:
-        # we want to collect contiguous spans of strings or non-block elements as a single paragraph
-        if isinstance(child, NavigableString):
-            yield unicode(child)
-        elif child.name == 'b' or child.name == 'i':
-            yield child.get_text()
-        elif child.name == 'p':
-            yield '\n' + ''.join(_iter_texts(child)) + '\n'
-        elif child.name == 'br':
-            yield '\n'
-        elif child.name == 'sup':
-            yield child.get_text()
-        elif child.name == 'ol' or child.name == 'ul':
-            for text in _iter_texts(child):
-                yield text
-        elif child.name == 'li':
-            yield '\n* ' + child.get_text() + '\n'
-        else:
-            logger.debug("Unrecognized '.displaytext' child: %r", child)
-            for text in _iter_texts(child):
-                yield text
 
 def fetch(pid):
     '''
@@ -49,8 +20,7 @@ def fetch(pid):
     timestamp = date.date().isoformat()
 
     displaytext = soup.find('span', class_='displaytext')
-    lines = ''.join(_iter_texts(displaytext)).split('\n')
-    text = '\n'.join(filter(not_empty, map(strip, lines)))
+    text = '\n'.join(iter_lines(displaytext))
 
     paper = dict(author=author, title=title.strip('.'), timestamp=timestamp, source=url, text=text)
 
