@@ -1,18 +1,26 @@
+from __future__ import unicode_literals
+import os
 import operator
 import itertools
 import re
 import string
 from collections import Counter
 import spacy
-from __init__ import read_strings
+from readers import read_strings
 
 # non-spaCy
 
+# `here` is the directory containing this file
+here = os.path.dirname(__file__) or os.curdir
+
+# or maybe just os.chdir(here) ?
+stopwords_dirpath = os.path.join(here, 'stopwords')
+
 stopwords = {
-    'postgresql': set(read_strings('stopwords/postgresql-english.txt')),
-    'nltk': set(read_strings('stopwords/nltk-english.txt')),
-    'google_1t': set(read_strings('stopwords/google-1t.txt')),
-    'datomic': set(read_strings('stopwords/datomic.txt')),
+    'postgresql': set(read_strings(os.path.join(stopwords_dirpath, 'postgresql-english.txt'))),
+    'nltk': set(read_strings(os.path.join(stopwords_dirpath, 'nltk-english.txt'))),
+    'google_1t': set(read_strings(os.path.join(stopwords_dirpath, 'google-1t.txt'))),
+    'datomic': set(read_strings(os.path.join(stopwords_dirpath, 'datomic.txt'))),
     'alphabet': set(string.ascii_lowercase),
     'contraction_suffixes': {'s', 'm', 're', 've', 'll', 'd', 't'},
     'contraction_prefixes': {'don', 'isn'},

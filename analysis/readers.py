@@ -1,14 +1,6 @@
 import json
 
 
-def select(d, whitelist):
-    '''
-    Construct a dict from a subset of `d`, limited to keys that are in `whitelist`
-    '''
-    whitelist = set(whitelist)
-    return {k: v for k, v in d.iteritems() if k in whitelist}
-
-
 def read_lines(*filepaths):
     '''
     Iterate over all lines in all files listed by `filepaths`

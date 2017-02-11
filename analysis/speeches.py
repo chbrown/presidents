@@ -1,7 +1,7 @@
 from collections import Counter
 from spacy import attrs
 
-from __init__ import read_ldjson
+from readers import read_ldjson
 import text
 
 
