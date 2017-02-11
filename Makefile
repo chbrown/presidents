@@ -6,7 +6,7 @@ SCRAPE := python scraping/cli.py
 # pip install -r requirements.txt
 
 data/millercenter/speeches.json:
-	 millercenter > $@
+	$(SCRAPE) millercenter > $@
 
 # this takes ~20 minutes even with all the pages already cached
 data/tapp/election2016.json:
