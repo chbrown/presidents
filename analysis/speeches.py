@@ -1,5 +1,6 @@
 from collections import Counter
 from spacy import attrs
+import dateutil.parser
 
 from readers import read_ldjson
 import text
@@ -60,8 +61,13 @@ class Speech(object):
         return self.metadata['author']
 
     @property
+    def title(self):
+        return self.metadata['title']
+
+    @property
     def timestamp(self):
-        return self.metadata['timestamp']
+        timestamp_str = self.metadata['timestamp']
+        return dateutil.parser.parse(timestamp_str)
 
     @property
     def source(self):
