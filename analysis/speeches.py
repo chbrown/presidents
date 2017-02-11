@@ -76,12 +76,7 @@ class Speech(object):
     @property
     def document(self):
         if not hasattr(self, '_document'):
-            # doc = nlp(text)
-            # is equivalent to:
-            # doc = nlp.tokenizer(text); nlp.tagger(doc); nlp.parser(doc); nlp.entity(doc)
-            # but for our purposes (so far), mostly what we need is the tokenization
-            # and the embedding, which we get with just the tokenizer call
-            self._document = text.nlp.tokenizer(self.text)
+            self._document = text.nlp(self.text)
         return self._document
 
     @property
