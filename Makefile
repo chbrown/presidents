@@ -2,9 +2,6 @@ all: data/millercenter/speeches.json data/tapp/election2016.json data/tapp/inaug
 
 SCRAPE := python scraping/cli.py
 
-# pre-requisite for all of these commands:
-# pip install -r requirements.txt
-
 data/millercenter/speeches.json:
 	$(SCRAPE) millercenter > $@
 
