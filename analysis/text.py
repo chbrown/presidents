@@ -53,7 +53,7 @@ def tokenize(s, stopwords=None):
 
 nlp = spacy.en.English()
 # add missing stop words (contractions whose lemmas are stopwords, mostly)
-for word in ["'m", "'re", "'s", "ca", "n't", "'ill", "'ve", "'d"] + ['going', 'getting', 'got']:
+for word in ["'m", "'re", "'s", "ca", "n't", "'ill", "'ve", "'d"] + ['going', 'getting', 'got'] + ['-PRON-']:
     lexeme = nlp.vocab[word]
     lexeme.is_stop = True
 
