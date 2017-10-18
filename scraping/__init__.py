@@ -101,7 +101,7 @@ def reencode_response(response):
     content_type = re.search(r'<meta.+charset=([a-z0-9-]+)', response.content, re.I)
     if content_type:
         encoding = content_type.group(1)
-        logger.debug('Setting encoding to "%s"', encoding)
+        logger.debug('Setting encoding to "%s" from //meta[charset] attribute', encoding)
         response.encoding = encoding
     return response
 
