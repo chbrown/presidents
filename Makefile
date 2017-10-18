@@ -53,6 +53,15 @@ data/tapp/listing2017-%.json:
 data/whitehouse/all.json:
 	$(SCRAPE) whitehouse > $@
 
+# the following is implicitly .INTERMEDIATE
+data/twitter/realDonaldTrump-%.json.zip:
+	curl -sL https://github.com/bpb27/trump_tweet_data_archive/raw/master/master_$*.json.zip > $@
+
+data/twitter/realDonaldTrump-%.json.gz: data/twitter/realDonaldTrump-%.json.zip
+	unzip $< # produces master_$*.json
+	# beware: jq munges long integers
+	jq -c '.[]' master_$*.json | gzip > $@
+	rm master_$*.json
 
 data/trump.json:
 	: > $@
