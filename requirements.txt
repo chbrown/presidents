@@ -1,6 +1,6 @@
-requests==2.12.5
+requests==2.18.4
 requests-cache==0.4.13
-beautifulsoup4==4.5.3
-python-dateutil==2.6.0
-pytz==2016.10
-spacy==1.6.0
+beautifulsoup4==4.6.0
+python-dateutil==2.6.1
+pytz==2017.2
+spacy==1.9.0
