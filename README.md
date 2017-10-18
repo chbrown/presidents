@@ -4,7 +4,7 @@ The scrapers are all located in `scraping/*.py` and rely on the `requests`, `Bea
 
     pip install -r requirements.txt
 
-See [SOURCES](SOURCES.md) for documentation on where and how the data was collected.
+See [Sources](docs/Sources.md) for documentation on where and how the data was collected.
 
 
 # Presidential analysis

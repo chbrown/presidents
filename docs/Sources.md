@@ -1,7 +1,7 @@
 ## Scrapers
 
-* [The Miller Center](scraping/millercenter.md)
-* [The American Presidency Project](scraping/tapp.md)
+* [The Miller Center](Miller_Center.md)
+* [The American Presidency Project](TAPP.md)
 
 
 # Other Data sources
