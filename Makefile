@@ -34,6 +34,9 @@ data/tapp/transition2009.json:
 data/tapp/transition2001.json:
 	$(SCRAPE) tapp-transition2001 > $@
 
+data/whitehouse/all.json:
+	$(SCRAPE) whitehouse > $@
+
 
 data/trump.json:
 	: > $@
