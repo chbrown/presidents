@@ -2,6 +2,7 @@ from __init__ import strip, get_soup, parse_date, tzinfos
 
 base_url = 'http://www.cbsnews.com'
 
+
 def _iter_article_paragraphs(soup):
     '''
     Iterate over its paragraphs of an article from CBS News
@@ -9,6 +10,7 @@ def _iter_article_paragraphs(soup):
     container = soup.find(id='article-entry')
     for paragraph in container.find_all('p'):
         yield paragraph.get_text().strip()
+
 
 def fetch(page_url):
     '''

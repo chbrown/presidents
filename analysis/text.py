@@ -34,6 +34,7 @@ _non_linguistic = [
     'booing', 'boos', 'crosstalk', 'inaudible', 'silence']
 _non_linguistic_pattern = r'\[(' + '|'.join(_non_linguistic) + r')\]'
 
+
 def tokenize(s, stopwords=None):
     # normalize abbreviations to avoid stranded initials
     s = re.sub(r'(?:[A-Z]\.)+', lambda m: m.group(0).replace('.', ''), s)

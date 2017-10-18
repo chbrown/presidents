@@ -6,6 +6,7 @@ from __init__ import get_soup, get_html, iter_lines, parse_date, logger
 
 base_url = 'http://www.presidency.ucsb.edu'
 
+
 def fetch(pid):
     '''
     Fetch single paper from The American Presidency Project website (http://www.presidency.ucsb.edu/)
@@ -32,9 +33,11 @@ def fetch(pid):
 
     return paper
 
+
 def _get_pids(soup):
     for anchor in soup.select('a[href*="index.php?pid="]'):
         yield re.search(r'pid=(\d+)', anchor['href']).group(1)
+
 
 def _get_paragraph_lines(p):
     for child in p.children:
@@ -45,6 +48,7 @@ def _get_paragraph_lines(p):
         else:
             yield child.get_text()
 
+
 def _get_candidate_info(info_paragraph):
     '''
     Parse candidate information
@@ -54,6 +58,7 @@ def _get_candidate_info(info_paragraph):
     name, title, candidacy_declared, status = lines
     return dict(name=name, title=title, candidacy_declared=candidacy_declared, status=status)
 
+
 def _iter_candidate_categories(links_paragraph):
     '''
     Parse links to speeches / statements / press releases / etc.
@@ -62,6 +67,7 @@ def _iter_candidate_categories(links_paragraph):
         category = anchor.get_text()
         url = base_url + '/' + anchor['href']
         yield category, url
+
 
 def fetch_election(year):
     '''
@@ -93,6 +99,7 @@ def fetch_election(year):
                     paper['category'] = category
                     yield paper
 
+
 def fetch_inaugurals():
     ordinals = ['Zeroth', 'First', 'Second', 'Third', 'Fourth']
     soup = get_soup(base_url + '/inaugurals.php')
@@ -113,6 +120,7 @@ def fetch_inaugurals():
         paper['title'] = title
         yield paper
 
+
 def fetch_transition(year):
     '''
     Fetch all papers related to a presidential transition; year should be one of:
@@ -122,6 +130,7 @@ def fetch_transition(year):
     for pid in _get_pids(soup):
         paper = fetch(pid)
         yield paper
+
 
 def fetch_listing(params):
     soup = get_soup(base_url + '/ws/index.php', params=params)

@@ -1,28 +1,38 @@
 import os
 import re
 import logging
-logger = logging.getLogger('presidents')
-
+import warnings
+# third party
 import requests
 import requests_cache
-requests_cache_filepath = os.getenv('PYTHON_REQUESTS_CACHE', '/tmp/python-requests_cache')
-requests_cache.install_cache(requests_cache_filepath)
-logger.debug('using HTTP requests cache at %s', requests_cache_filepath)
-
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
-# suppress BeautifulSoup warning; I want to use the best available parser, but I don't care which
-import warnings
-warnings.filterwarnings('ignore', category=UserWarning, module='bs4')
-
 import pytz
 import dateutil.parser
 import dateutil.tz
 
-empty = lambda xs: len(xs) == 0
-not_empty = lambda xs: len(xs) != 0
-# because str.strip and unicode.strip are not the same
-strip = lambda s: s.strip()
+logger = logging.getLogger('presidents')
+
+requests_cache_filepath = os.getenv('PYTHON_REQUESTS_CACHE', '/tmp/python-requests_cache')
+requests_cache.install_cache(requests_cache_filepath)
+logger.debug('using HTTP requests cache at %s', requests_cache_filepath)
+
+# suppress BeautifulSoup warning; I want to use the best available parser, but I don't care which
+warnings.filterwarnings('ignore', category=UserWarning, module='bs4')
+
+
+def empty(xs):
+    return len(xs) == 0
+
+
+def not_empty(xs):
+    return len(xs) != 0
+
+
+def strip(s):
+    '''because str.strip and unicode.strip are not the same'''
+    return s.strip()
+
 
 def iter_texts(element):
     '''
@@ -52,6 +62,7 @@ def iter_texts(element):
             for text in iter_texts(child):
                 yield text
 
+
 def iter_lines(*elements):
     '''
     Iterate over all texts in elements using iter_texts(element), merging
@@ -64,6 +75,7 @@ def iter_lines(*elements):
         if len(stripped_line) != 0:
             yield stripped_line
 
+
 def iter_datalist_pairs(dl_soup):
     '''
     Iterate over contents of (<dt>, <dd>) pairs in a <dl>...</dl>
@@ -74,6 +86,7 @@ def iter_datalist_pairs(dl_soup):
             term = child.get_text()
         elif child.name == 'dd':
             yield term, child.get_text()
+
 
 def reencode_response(response):
     '''
@@ -92,10 +105,12 @@ def reencode_response(response):
         response.encoding = encoding
     return response
 
+
 def get_html(url, **kwargs):
     logger.info('Fetching "%s" %r', url, kwargs)
     response = reencode_response(requests.get(url, **kwargs))
     return response.text
+
 
 def get_soup(url, **kwargs):
     return BeautifulSoup(get_html(url, **kwargs))
@@ -117,6 +132,7 @@ _tz_aliases = {'PT': 'US/Pacific',
                'ET': 'US/Eastern'}
 for alias in _tz_aliases:
     tzinfos[alias] = tzinfos[_tz_aliases[alias]]
+
 
 def parse_date(s, default_tzinfo=None):
     date = dateutil.parser.parse(s, fuzzy=True, tzinfos=tzinfos)

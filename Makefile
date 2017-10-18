@@ -2,6 +2,10 @@ all: data/millercenter/speeches.json data/tapp/election2016.json data/tapp/inaug
 
 SCRAPE := python scraping/cli.py
 
+.PHONY: check
+check:
+	pep8 {analysis,scraping}/*.py
+
 data/millercenter/speeches.json:
 	$(SCRAPE) millercenter > $@
 

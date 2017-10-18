@@ -102,7 +102,7 @@ class Speech(object):
 # too thin to merit its own class, so it may change / get simplified in the future.
 
 class SpeechCollection(object):
-    def __init__(self, filepaths, predicate = lambda speech: True):
+    def __init__(self, filepaths, predicate=lambda speech: True):
         self.filepaths = filepaths
         self.predicate = predicate
 

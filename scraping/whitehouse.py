@@ -4,6 +4,7 @@ import requests
 
 base_url = 'https://www.whitehouse.gov'
 
+
 def _fetch_page(url):
     soup = get_soup(url)
     # heading_title = soup.select_one('.heading-title')
@@ -66,7 +67,7 @@ def _fetch_group(briefing_room_group):
         try:
             page = _fetch_page(page_url)
             yield dict(title=title, **page)
-        except requests.exceptions.TooManyRedirects, exc:
+        except requests.exceptions.TooManyRedirects as exc:
             logger.warn('Failed to fetch "%s": %s', page_url, exc)
 
 
@@ -93,6 +94,7 @@ briefing_room_groups = [
     # Disclosures
     # ... no data yet available
 ]
+
 
 def fetch_all(selected_briefing_room_groups=None):
     if not selected_briefing_room_groups:

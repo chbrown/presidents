@@ -1,6 +1,7 @@
 from bs4.element import NavigableString
 from __init__ import not_empty, strip, get_soup, parse_date, iter_datalist_pairs
 
+
 def _iter_transcript_paragraph_strings(element):
     for child in element.children:
         if isinstance(child, NavigableString):
@@ -10,12 +11,14 @@ def _iter_transcript_paragraph_strings(element):
             if not is_ellipses:
                 yield child.get_text()
 
+
 def _fetch_transcript_paragraphs(program_id):
     url = 'https://www.c-span.org/video/?' + program_id + '&action=getTranscript&transcriptType=cc'
     soup = get_soup(url)
     for paragraph in soup.find_all('p'):
         text = ''.join(filter(not_empty, map(strip, _iter_transcript_paragraph_strings(paragraph))))
         yield ' '.join(text.strip().split())
+
 
 def fetch(program_id):
     '''

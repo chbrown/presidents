@@ -6,6 +6,8 @@ _ordinal_mapping = {'First': '1st',
                     'Second': '2nd',
                     'Third': '3rd',
                     'Fourth': '4th'}
+
+
 def iter_inaugural_titles(speeches):
     '''
     Prettify inaugural titles a little bit considering most presidents serve

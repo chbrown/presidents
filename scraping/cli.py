@@ -3,7 +3,6 @@ import sys
 import json
 import argparse
 import logging
-logging.basicConfig(level=logging.NOTSET)
 # sources
 import abcnews
 import cbsnews
@@ -11,6 +10,9 @@ import cspan
 import millercenter
 import tapp
 import whitehouse
+
+logging.basicConfig(level=logging.NOTSET)
+
 
 def tapp_listing(opts):
     params = dict(includepress='1')
@@ -42,6 +44,7 @@ commands = {
 }
 
 verbosity_levels = [logging.WARN, logging.INFO, logging.DEBUG, logging.NOTSET]
+
 
 def main():
     parser = argparse.ArgumentParser(

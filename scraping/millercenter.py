@@ -7,6 +7,7 @@ from __init__ import logger, get_soup
 
 base_url = 'http://millercenter.org'
 
+
 def _split_title(title):
     date_regex = r'\((\w+ \d+, \d{4})\)'
     date_match = re.search(date_regex, title)
@@ -16,6 +17,7 @@ def _split_title(title):
         return title, date
     else:
         return title, None
+
 
 def _iter_speeches():
     soup = get_soup(base_url + '/president/speeches')
@@ -27,6 +29,7 @@ def _iter_speeches():
             for anchor in child.select('.title a'):
                 title, date = _split_title(anchor.text)
                 yield current_author, title, date, anchor['href']
+
 
 def _iter_paragraphs(transcript):
     for child in transcript.children:
@@ -42,6 +45,7 @@ def _iter_paragraphs(transcript):
                     yield unicode(subchild)
                 else:
                     yield subchild.get_text()
+
 
 def fetch_speeches():
     for author, title, date, href in _iter_speeches():
