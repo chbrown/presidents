@@ -11,6 +11,10 @@ See [Sources](docs/Sources.md) for documentation on where and how the data was c
 
 The substance of the analysis exists as IPython / Jupyter notebooks. See [`notebooks/`](notebooks/).
 
+To setup [`spaCy` (1.9.0)](https://spacy.io/docs/):
+
+    python -m spacy download en
+
 
 ## License
 
