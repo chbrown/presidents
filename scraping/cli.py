@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.NOTSET)
 
 
 def tapp_listing(opts):
-    params = dict(includepress='1')
+    params = dict(includepress='1', includecampaign='1')
     if opts.year:
         params['year'] = opts.year
     if opts.month:
