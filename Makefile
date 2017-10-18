@@ -44,6 +44,12 @@ data/tapp/transition2009.json:
 data/tapp/transition2001.json:
 	$(SCRAPE) tapp-transition2001 > $@
 
+data/tapp/listing2016-%.json:
+	$(SCRAPE) tapp-listing --year 2016 --month $* > $@
+
+data/tapp/listing2017-%.json:
+	$(SCRAPE) tapp-listing --year 2017 --month $* > $@
+
 data/whitehouse/all.json:
 	$(SCRAPE) whitehouse > $@
 
