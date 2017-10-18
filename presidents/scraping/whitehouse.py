@@ -1,6 +1,8 @@
-from __init__ import iter_lines, get_soup, parse_date, logger
 from urlparse import urljoin
 import requests
+# relative imports
+from . import get_soup, iter_lines
+from .. import logger, parse_date
 
 base_url = 'https://www.whitehouse.gov'
 

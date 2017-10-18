@@ -6,15 +6,18 @@ import re
 import string
 from collections import Counter
 import spacy
-from readers import read_strings
+# relative imports
+from ..readers import read_strings
 
 # non-spaCy
+# =========
 
 # `here` is the directory containing this file
 here = os.path.dirname(__file__) or os.curdir
+root = os.path.dirname(os.path.dirname(here))
 
 # or maybe just os.chdir(here) ?
-stopwords_dirpath = os.path.join(here, 'stopwords')
+stopwords_dirpath = os.path.join(root, 'stopwords')
 
 stopwords = {
     'postgresql': set(read_strings(os.path.join(stopwords_dirpath, 'postgresql-english.txt'))),
@@ -51,6 +54,7 @@ def tokenize(s, stopwords=None):
             yield token
 
 # spaCy
+# =====
 
 nlp = spacy.en.English()
 # add missing stop words (contractions whose lemmas are stopwords, mostly)

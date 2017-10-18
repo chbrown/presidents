@@ -1,10 +1,16 @@
 all: data/millercenter/speeches.json data/tapp/election2016.json data/tapp/inaugurals.json
 
-SCRAPE := python scraping/cli.py
+SCRAPE := python -m presidents.scraping.cli
 
-.PHONY: check
+.PHONY: install clean check
+install:
+	pwd > /usr/local/lib/python2.7/site-packages/presidents.pth
+
+clean:
+	rm presidents/**/*.pyc
+
 check:
-	pep8 {analysis,scraping}/*.py
+	pep8 presidents/**/*.py
 
 data/millercenter/speeches.json:
 	$(SCRAPE) millercenter > $@

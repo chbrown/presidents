@@ -1,14 +1,16 @@
+import sys
+import logging
 from collections import Counter
 from spacy import attrs
-import dateutil.parser
-
-from readers import read_ldjson
-import text
+# relative imports
+from .text import tokenize, is_word, nlp
+from ..readers import read_ldjson
+from .. import parse_date, tzinfos, logger
 
 
 def iter_speech_counts(speech, synsets, stopwords=None):
     speech_without_text = {k: v for k, v in speech.items() if k != 'text'}
-    counts = Counter(text.tokenize(speech['text'], stopwords))
+    counts = Counter(tokenize(speech['text'], stopwords))
     total_count = sum(counts.values())
     for synset_name, synset_tokens in synsets:
         synset_count = sum(counts.get(synset_token, 0) for synset_token in synset_tokens)
@@ -45,7 +47,7 @@ def iter_groups_speeches_count(groups, synsets, stopwords=None):
 
 
 def _count_words(document, attr):
-    return {k: v for k, v in document.count_by(attr).iteritems() if text.is_word(k)}
+    return {k: v for k, v in document.count_by(attr).iteritems() if is_word(k)}
 
 
 class Speech(object):
@@ -67,7 +69,11 @@ class Speech(object):
     @property
     def timestamp(self):
         timestamp_str = self.metadata['timestamp']
-        return dateutil.parser.parse(timestamp_str)
+        try:
+            return parse_date(timestamp_str, tzinfos['EST'])
+        except Exception:
+            logger.error("Could not parse timestamp '{}' in metadata: {}".format(timestamp_str, self.metadata))
+            raise
 
     @property
     def source(self):
@@ -76,7 +82,7 @@ class Speech(object):
     @property
     def document(self):
         if not hasattr(self, '_document'):
-            self._document = text.nlp(self.text)
+            self._document = nlp(self.text)
         return self._document
 
     @property

@@ -1,4 +1,6 @@
-from __init__ import strip, get_soup, parse_date, tzinfos
+# relative imports
+from . import get_soup
+from .. import parse_date, tzinfos
 
 base_url = 'http://www.cbsnews.com'
 

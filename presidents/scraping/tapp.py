@@ -2,7 +2,9 @@ import re
 from datetime import datetime
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
-from __init__ import get_soup, get_html, iter_lines, parse_date, logger
+# relative imports
+from . import get_soup, get_html, iter_lines
+from .. import logger, parse_date
 
 base_url = 'http://www.presidency.ucsb.edu'
 

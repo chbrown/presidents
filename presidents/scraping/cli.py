@@ -3,15 +3,8 @@ import sys
 import json
 import argparse
 import logging
-# sources
-import abcnews
-import cbsnews
-import cspan
-import millercenter
-import tapp
-import whitehouse
-
-logging.basicConfig(level=logging.NOTSET)
+# sources (relative imports)
+from . import abcnews, cbsnews, cspan, millercenter, tapp, whitehouse
 
 
 def tapp_listing(opts):

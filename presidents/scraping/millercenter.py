@@ -3,7 +3,9 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 import requests
-from __init__ import logger, get_soup
+# relative imports
+from . import get_soup
+from .. import logger
 
 base_url = 'http://millercenter.org'
 

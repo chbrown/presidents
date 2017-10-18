@@ -1,6 +1,6 @@
 # Presidential data
 
-The scrapers are all located in `scraping/*.py` and rely on the `requests`, `BeautifulSoup4`, and `python-dateutil` libraries (among others). To install these libraries:
+The scrapers are all located in `presidents/scraping/*.py` and rely on the `requests`, `BeautifulSoup4`, and `python-dateutil` libraries (among others). To install these libraries:
 
     pip install -r requirements.txt
 

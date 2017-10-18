@@ -1,5 +1,7 @@
 from bs4.element import NavigableString
-from __init__ import not_empty, strip, get_soup, parse_date, iter_datalist_pairs
+# relative imports
+from . import get_soup, iter_datalist_pairs
+from .. import not_empty, strip, parse_date
 
 
 def _iter_transcript_paragraph_strings(element):
