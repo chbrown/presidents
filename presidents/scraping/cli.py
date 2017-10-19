@@ -4,7 +4,7 @@ import json
 import argparse
 import logging
 # sources (relative imports)
-from .. import uniq
+from .. import logger, logger_verbosity_levels, uniq
 from . import abcnews, cbsnews, cspan, millercenter, tapp, whitehouse
 
 # each command should be a function from an argparse opts object to an iterable
@@ -28,8 +28,6 @@ commands = {
     'whitehouse': lambda opts: whitehouse.fetch_all(opts.args),
 }
 
-verbosity_levels = [logging.WARN, logging.INFO, logging.DEBUG, logging.NOTSET]
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -47,7 +45,7 @@ def main():
 
     opts = parser.parse_args()
 
-    logging.basicConfig(level=verbosity_levels[opts.verbose])
+    logger.setLevel(logger_verbosity_levels[opts.verbose])
 
     command = commands[opts.command]
     for obj in command(opts):

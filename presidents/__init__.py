@@ -5,6 +5,7 @@ import dateutil.tz
 
 logging.basicConfig(level=logging.NOTSET)
 logger = logging.getLogger('presidents')
+logger_verbosity_levels = [logging.WARN, logging.INFO, logging.DEBUG, logging.NOTSET] # [30, 20, 10, 0]
 
 
 def empty(xs):

@@ -1,5 +1,4 @@
 import sys
-import logging
 from collections import Counter
 from spacy import attrs
 # relative imports
