@@ -134,8 +134,16 @@ def fetch_transition(year):
         yield paper
 
 
-def fetch_listing(params):
-    soup = get_soup(base_url + '/ws/index.php', params=params)
-    for pid in _get_pids(soup):
-        paper = fetch(pid)
-        yield paper
+def fetch_pids(args):
+    '''
+    Fetch all paper IDs for a combination of query params, which can be any of:
+    * ty (Document Category, i.e., "type")
+    * pres (President, canonical index; e.g., 44 = Obama)
+    * month (Month of the year, 01 through 12)
+    * daynum (day of the month)
+    * year (Year, 4 digits; any of the 229 years from 1789 to 2017)
+
+    args is a list of strings in the form "key=value"
+    '''
+    soup = get_soup(base_url + '/ws/index.php?includepress=1&includecampaign=1&' + '&'.join(args))
+    return map(int, _get_pids(soup))

@@ -6,15 +6,6 @@ import logging
 # sources (relative imports)
 from . import abcnews, cbsnews, cspan, millercenter, tapp, whitehouse
 
-
-def tapp_listing(opts):
-    params = dict(includepress='1', includecampaign='1')
-    if opts.year:
-        params['year'] = opts.year
-    if opts.month:
-        params['month'] = '%02d' % opts.month
-    return tapp.fetch_listing(params)
-
 # each command should be a function from an argparse opts object to an iterable
 # of standard speech dicts
 commands = {
@@ -32,7 +23,7 @@ commands = {
     'tapp-transition2017': lambda opts: tapp.fetch_transition('2017'),
     'tapp-transition2009': lambda opts: tapp.fetch_transition('2009'),
     'tapp-transition2001': lambda opts: tapp.fetch_transition('2001'),
-    'tapp-listing': tapp_listing,
+    'tapp-pids': lambda opts: tapp.fetch_pids(opts.args),
     'whitehouse': lambda opts: whitehouse.fetch_all(opts.args),
 }
 
@@ -50,12 +41,8 @@ def main():
     subparsers = parser.add_subparsers(dest='command', help='Command')
     command_parsers = {k: subparsers.add_parser(k) for k in commands}
     # a couple commands take variable args
-    for k in ['abcnews', 'cbsnews', 'cspan', 'tapp', 'whitehouse']:
+    for k in ['abcnews', 'cbsnews', 'cspan', 'tapp', 'tapp-pids', 'whitehouse']:
         command_parsers[k].add_argument('args', nargs='*', help='arguments to command')
-    # tapp-listing gets special arguments
-    tapp_listing_parser = command_parsers['tapp-listing']
-    tapp_listing_parser.add_argument('--year', required=True, type=int, help='Year to list')
-    tapp_listing_parser.add_argument('--month', type=int, help='Month to list')
 
     opts = parser.parse_args()
 
