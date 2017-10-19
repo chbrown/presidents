@@ -45,7 +45,9 @@ def main():
 
     opts = parser.parse_args()
 
-    logger.setLevel(logger_verbosity_levels[opts.verbose])
+    logging_level = logger_verbosity_levels[opts.verbose]
+    logging.basicConfig(level=logging_level)
+    logger.setLevel(logging_level)
 
     command = commands[opts.command]
     for obj in command(opts):
