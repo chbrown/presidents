@@ -73,6 +73,8 @@ def fetch(pid):
     # the HTML they generate is awkward, to say the least
     author, title = soup.find('title').get_text().split(': ', 1)
     date_string = soup.find('span', class_='docdate').string
+    # when TAPP uses a timestamp with a 0 day-of-month, convert it to 1
+    date_string = re.sub(r'(\w+) 0, (\d{4})', r'\1 1, \2', date_string)
     date = datetime.strptime(date_string, '%B %d, %Y')
     timestamp = date.date().isoformat()
 
