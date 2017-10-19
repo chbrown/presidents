@@ -4,6 +4,7 @@ import json
 import argparse
 import logging
 # sources (relative imports)
+from .. import uniq
 from . import abcnews, cbsnews, cspan, millercenter, tapp, whitehouse
 
 # each command should be a function from an argparse opts object to an iterable
@@ -23,7 +24,7 @@ commands = {
     'tapp-transition2017': lambda opts: tapp.fetch_transition('2017'),
     'tapp-transition2009': lambda opts: tapp.fetch_transition('2009'),
     'tapp-transition2001': lambda opts: tapp.fetch_transition('2001'),
-    'tapp-pids': lambda opts: tapp.fetch_pids(opts.args),
+    'tapp-pids': lambda opts: uniq(map(int, tapp.fetch_pids(dict(arg.split('=') for arg in opts.args)))),
     'whitehouse': lambda opts: whitehouse.fetch_all(opts.args),
 }
 

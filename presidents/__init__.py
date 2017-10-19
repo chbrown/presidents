@@ -20,6 +20,13 @@ def strip(s):
     return s.strip()
 
 
+def uniq(xs):
+    seen = set()
+    for x in xs:
+        if x not in seen:
+            yield x
+        seen.add(x)
+
 _excluded_tzname_prefixes = (
     'Etc/',
     'Asia/', 'Indian/', 'Australia/', 'Pacific/',

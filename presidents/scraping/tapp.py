@@ -134,7 +134,17 @@ def fetch_transition(year):
         yield paper
 
 
-def fetch_pids(args):
+def _get_records_found(soup):
+    # the doctitle we want is an element like:
+    # <span ...>Record(s) found: <font ...>7433</font></span>
+    for doctitle in soup.select('.doctitle'):
+        text = doctitle.get_text()
+        if text.startswith('Record(s) found:'):
+            return int(text.split(':')[-1])
+    return 0
+
+
+def fetch_pids(params):
     '''
     Fetch all paper IDs for a combination of query params, which can be any of:
     * ty (Document Category, i.e., "type")
@@ -145,5 +155,32 @@ def fetch_pids(args):
 
     args is a list of strings in the form "key=value"
     '''
-    soup = get_soup(base_url + '/ws/index.php?includepress=1&includecampaign=1&' + '&'.join(args))
-    return map(int, _get_pids(soup))
+    params = dict(params, includepress='1', includecampaign='1')
+
+    soup = get_soup(base_url + '/ws/index.php', params=params)
+    records_found = _get_records_found(soup)
+    logger.debug('fetching {} total pids'.format(records_found))
+
+    page_pids = list(_get_pids(soup))
+    logger.debug('found {} pids on current page'.format(len(page_pids)))
+    for pid in page_pids:
+        yield pid
+    if len(page_pids) < records_found:
+        last_date = parse_date(soup.select('.listdate')[-1].get_text())
+        logger.debug('continuing from last_date: {}'.format(last_date))
+
+        # The TAPP website considers years and month/day separately when searching by year.
+        # Or something. Can't quite figure it out. It's weird.
+
+        # get pids to end of year
+        params1 = dict(params, yearstart=last_date.year, yearend=last_date.year,
+                               monthstart=last_date.month, monthend='12',
+                               daystart=last_date.day, dayend='31')
+        for pid in fetch_pids(params1):
+            yield pid
+        # then start at the next year
+        params2 = dict(params, yearstart=last_date.year + 1, yearend='2020',
+                               monthstart='01', monthend='12',
+                               daystart='01', dayend='31')
+        for pid in fetch_pids(params2):
+            yield pid
