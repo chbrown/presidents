@@ -2,6 +2,9 @@ all: data/millercenter/speeches.json data/tapp/election2016.json data/tapp/inaug
 
 SCRAPE := python -m presidents.scraping.cli
 
+# Facilities
+# ==========
+
 .PHONY: install clean check
 install:
 	pwd > /usr/local/lib/python2.7/site-packages/presidents.pth
@@ -12,8 +15,14 @@ clean:
 check:
 	pep8 presidents/**/*.py
 
+# Miller Center
+# =============
+
 data/millercenter/speeches.json:
 	$(SCRAPE) millercenter > $@
+
+# The American Presidency Project (TAPP)
+# ======================================
 
 # this takes ~20 minutes even with all the pages already cached
 data/tapp/election2016.json:
@@ -50,8 +59,14 @@ data/tapp/listing2016-%.json:
 data/tapp/listing2017-%.json:
 	$(SCRAPE) tapp-listing --year 2017 --month $* > $@
 
+# White House Briefing Room
+# =========================
+
 data/whitehouse/all.json:
 	$(SCRAPE) whitehouse > $@
+
+# Twitter
+# =======
 
 # the following is implicitly .INTERMEDIATE
 data/twitter/realDonaldTrump-%.json.zip:
@@ -62,6 +77,9 @@ data/twitter/realDonaldTrump-%.json.gz: data/twitter/realDonaldTrump-%.json.zip
 	# beware: jq munges long integers
 	jq -c '.[]' master_$*.json | gzip > $@
 	rm master_$*.json
+
+# Miscellaneous
+# =============
 
 data/trump.json:
 	: > $@
