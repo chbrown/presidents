@@ -53,11 +53,23 @@ data/tapp/transition2009.json:
 data/tapp/transition2001.json:
 	$(SCRAPE) tapp-transition2001 > $@
 
-data/tapp/listing2016-%.json:
-	$(SCRAPE) tapp-listing --year 2016 --month $* > $@
+# TAPP pids
+# =========
 
-data/tapp/listing2017-%.json:
-	$(SCRAPE) tapp-listing --year 2017 --month $* > $@
+# echo 11{01,02,03,04,05,07,08,10,13,18,19,20,28,33,35,36,37,39,40,41,57,60,61,62} 21{00,10,11,13,14,15,65} 22{00,01,02,10} {23,24,25}00 251{0,1} 26{00,10} 27{10,20} 2800 3001 3500 550{1,2,3} 8000 | xargs -n1 -I % make data/tapp/category/%.pids
+data/tapp/category/%.pids:
+	@mkdir -p $(@D)
+	$(SCRAPE) tapp-pids ty=$* > $@
+
+# seq 1 45 | xargs -n1 -I % make data/tapp/president/%.pids
+data/tapp/president/%.pids:
+	@mkdir -p $(@D)
+	$(SCRAPE) tapp-pids pres=$* > $@
+
+# seq 1789 2017 | xargs -n1 -I % make data/tapp/year/%.pids
+data/tapp/year/%.pids:
+	@mkdir -p $(@D)
+	$(SCRAPE) tapp-pids year=$* > $@
 
 # White House Briefing Room
 # =========================
