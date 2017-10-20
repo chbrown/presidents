@@ -1,8 +1,8 @@
 import sys
-from collections import Counter
+from collections import Counter, Mapping
 from spacy import attrs
 # relative imports
-from .text import tokenize, is_word, nlp
+from .text import tokenize, is_word, nlp, parse
 from ..readers import read_ldjson
 from .. import parse_date, tzinfos, logger
 
@@ -49,39 +49,76 @@ def _count_words(document, attr):
     return {k: v for k, v in document.count_by(attr).iteritems() if is_word(k)}
 
 
-class Speech(object):
-    '''
-    spaCy-oriented document container; lazy, memoized
-    '''
-    def __init__(self, text, **kwargs):
+class TitledDocument(Mapping):
+    attrs = ('title', 'text')
+
+    def __init__(self, title, text, **kwargs):
+        self.title = title
         self.text = text
         self.metadata = kwargs
 
-    @property
-    def author(self):
-        return self.metadata['author']
+    # collections.Mapping ABC implementation
+    def __len__(self):
+        return len(self.attrs) + len(self.metadata)
 
-    @property
-    def title(self):
-        return self.metadata['title']
+    def __iter__(self):
+        for attr in self.attrs:
+            yield attr
+        for key in self.metadata:
+            yield key
 
-    @property
-    def timestamp(self):
-        timestamp_str = self.metadata['timestamp']
-        try:
-            return parse_date(timestamp_str, tzinfos['EST'])
-        except Exception:
-            logger.error("Could not parse timestamp '{}' in metadata: {}".format(timestamp_str, self.metadata))
-            raise
+    def __getitem__(self, key):
+        if key in self.attrs:
+            return getattr(self, key)
+        return self.metadata[key]
 
-    @property
-    def source(self):
-        return self.metadata['source']
 
     @property
     def document(self):
         if not hasattr(self, '_document'):
-            self._document = nlp(self.text)
+            self._document = parse(self.text)
+        return self._document
+
+
+class Speech(Mapping):
+    attrs = {'title', 'author', 'text', 'source', 'timestamp'}
+
+    '''
+    spaCy-oriented document container; lazy, memoized
+    '''
+    def __init__(self, title, author, text, source, timestamp, **kwargs):
+        self.title = title
+        self.author = author
+        self.text = text
+        self.source = source
+        self.timestamp = parse_date(timestamp, tzinfos['EST'])
+        # logger.error("Could not parse timestamp '{}' in metadata: {}".format(timestamp_str, self.metadata))
+        self.metadata = kwargs
+
+    @property
+    def date(self):
+        return self.timestamp.date()
+
+    # collections.Mapping ABC implementation
+    def __len__(self):
+        return len(self.attrs) + len(self.metadata)
+
+    def __iter__(self):
+        for attr in self.attrs:
+            yield attr
+        for key in self.metadata:
+            yield key
+
+    def __getitem__(self, key):
+        if key in self.attrs:
+            return getattr(self, key)
+        return self.metadata[key]
+
+    # (memoized) spaCy interface
+    @property
+    def document(self):
+        if not hasattr(self, '_document'):
+            self._document = parse(self.text)
         return self._document
 
     @property
