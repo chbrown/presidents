@@ -24,38 +24,6 @@ data/millercenter/speeches.json:
 # The American Presidency Project (TAPP)
 # ======================================
 
-# this takes ~20 minutes even with all the pages already cached
-data/tapp/election2016.json:
-	$(SCRAPE) tapp-election2016 > $@
-
-# this takes ~22 minutes, including fetching the pages
-data/tapp/election2012.json:
-	$(SCRAPE) tapp-election2012 > $@
-
-data/tapp/election2008.json:
-	$(SCRAPE) tapp-election2008 > $@
-
-data/tapp/election2004.json:
-	$(SCRAPE) tapp-election2004 > $@
-
-data/tapp/election1960.json:
-	$(SCRAPE) tapp-election1960 > $@
-
-data/tapp/inaugurals.json:
-	$(SCRAPE) tapp-inaugurals > $@
-
-data/tapp/transition2017.json:
-	$(SCRAPE) tapp-transition2017 > $@
-
-data/tapp/transition2009.json:
-	$(SCRAPE) tapp-transition2009 > $@
-
-data/tapp/transition2001.json:
-	$(SCRAPE) tapp-transition2001 > $@
-
-# TAPP pids
-# =========
-
 # echo 11{01,02,03,04,05,07,08,10,13,18,19,20,28,33,35,36,37,39,40,41,57,60,61,62} 21{00,10,11,13,14,15,65} 22{00,01,02,10} {23,24,25}00 251{0,1} 26{00,10} 27{10,20} 2800 3001 3500 550{1,2,3} 8000 | xargs -n1 -I % make data/tapp/category/%.pids
 data/tapp/category/%.pids:
 	@mkdir -p $(@D)
