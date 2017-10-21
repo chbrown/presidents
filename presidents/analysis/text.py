@@ -7,16 +7,12 @@ import string
 from collections import Counter
 import spacy
 # relative imports
+from .. import root
 from ..readers import read_strings
 
 # non-spaCy
 # =========
 
-# `here` is the directory containing this file
-here = os.path.dirname(__file__) or os.curdir
-root = os.path.dirname(os.path.dirname(here))
-
-# or maybe just os.chdir(here) ?
 stopwords_dirpath = os.path.join(root, 'stopwords')
 
 stopwords = {

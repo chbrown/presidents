@@ -1,3 +1,4 @@
+import os
 import logging
 import pytz
 import dateutil.parser
@@ -6,6 +7,12 @@ import dateutil.tz
 logging.basicConfig(level=logging.NOTSET)
 logger = logging.getLogger('presidents')
 logger_verbosity_levels = [logging.WARN, logging.INFO, logging.DEBUG, logging.NOTSET] # [30, 20, 10, 0]
+
+# `here` is the directory containing this file
+here = os.path.dirname(__file__) or os.curdir
+# `root` is the directory containing the "presidents" package
+# (i.e., the git repo root)
+root = os.path.dirname(here)
 
 
 def empty(xs):
