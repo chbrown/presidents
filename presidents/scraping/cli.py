@@ -14,7 +14,8 @@ commands = {
     'cbsnews': lambda opts: (cbsnews.fetch(page_url) for page_url in opts.args),
     'cspan': lambda opts: (cspan.fetch(program_id) for program_id in opts.args),
     'millercenter': lambda opts: millercenter.fetch_speeches(),
-    'tapp': lambda opts: (tapp.fetch(pid) for pid in opts.args),
+    'tapp-fetch': lambda opts: (tapp.fetch(pid) for pid in opts.args),
+    'tapp-read': lambda opts: tapp.read_from_local_cache(opts.args),
     'tapp-inaugurals': lambda opts: tapp.fetch_inaugurals(),
     'tapp-election-pids': lambda opts: map(int, tapp.fetch_election_pids(*opts.args)),
     'tapp-transition-pids': lambda opts: map(int, tapp.fetch_transition_pids(*opts.args)),
@@ -34,7 +35,8 @@ def main():
     subparsers = parser.add_subparsers(dest='command', help='Command')
     command_parsers = {k: subparsers.add_parser(k) for k in commands}
     # a couple commands take variable args
-    for k in ['abcnews', 'cbsnews', 'cspan', 'tapp',
+    for k in ['abcnews', 'cbsnews', 'cspan',
+              'tapp-fetch', 'tapp-read',
               'tapp-election-pids', 'tapp-transition-pids', 'tapp-pids',
               'whitehouse']:
         command_parsers[k].add_argument('args', nargs='*', help='arguments to command')
