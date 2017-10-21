@@ -28,6 +28,16 @@ data/tapp/all.local-cache.json:
 	# decompress all .json.bz2 files to stdout, then append uncompressed .json files
 	bunzip2 -k -c data/tapp/papers-*.json.bz2 | cat - data/tapp/papers-*.json > $@
 
+# echo 2016 2012 2008 2004 1960 | xargs -n1 -I % make data/tapp/election/%.pids
+data/tapp/election/%.pids:
+	@mkdir -p $(@D)
+	$(SCRAPE) tapp-election-pids $* > $@
+
+# echo 2017 2009 2001 | xargs -n1 -I % make data/tapp/transition/%.pids
+data/tapp/transition/%.pids:
+	@mkdir -p $(@D)
+	$(SCRAPE) tapp-transition-pids $* > $@
+
 # echo 11{01,02,03,04,05,07,08,10,13,18,19,20,28,33,35,36,37,39,40,41,57,60,61,62} 21{00,10,11,13,14,15,65} 22{00,01,02,10} {23,24,25}00 251{0,1} 26{00,10} 27{10,20} 2800 3001 3500 550{1,2,3} 8000 | xargs -n1 -I % make data/tapp/category/%.pids
 data/tapp/category/%.pids:
 	@mkdir -p $(@D)
