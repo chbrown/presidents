@@ -16,14 +16,8 @@ commands = {
     'millercenter': lambda opts: millercenter.fetch_speeches(),
     'tapp': lambda opts: (tapp.fetch(pid) for pid in opts.args),
     'tapp-inaugurals': lambda opts: tapp.fetch_inaugurals(),
-    'tapp-election2016': lambda opts: tapp.fetch_election('2016'),
-    'tapp-election2012': lambda opts: tapp.fetch_election('2012'),
-    'tapp-election2008': lambda opts: tapp.fetch_election('2008'),
-    'tapp-election2004': lambda opts: tapp.fetch_election('2004'),
-    'tapp-election1960': lambda opts: tapp.fetch_election('1960'),
-    'tapp-transition2017': lambda opts: tapp.fetch_transition('2017'),
-    'tapp-transition2009': lambda opts: tapp.fetch_transition('2009'),
-    'tapp-transition2001': lambda opts: tapp.fetch_transition('2001'),
+    'tapp-election-pids': lambda opts: map(int, tapp.fetch_election_pids(*opts.args)),
+    'tapp-transition-pids': lambda opts: map(int, tapp.fetch_transition_pids(*opts.args)),
     'tapp-pids': lambda opts: uniq(map(int, tapp.fetch_pids(dict(arg.split('=') for arg in opts.args)))),
     'whitehouse': lambda opts: whitehouse.fetch_all(opts.args),
 }
@@ -40,7 +34,9 @@ def main():
     subparsers = parser.add_subparsers(dest='command', help='Command')
     command_parsers = {k: subparsers.add_parser(k) for k in commands}
     # a couple commands take variable args
-    for k in ['abcnews', 'cbsnews', 'cspan', 'tapp', 'tapp-pids', 'whitehouse']:
+    for k in ['abcnews', 'cbsnews', 'cspan', 'tapp',
+              'tapp-election-pids', 'tapp-transition-pids', 'tapp-pids',
+              'whitehouse']:
         command_parsers[k].add_argument('args', nargs='*', help='arguments to command')
 
     opts = parser.parse_args()

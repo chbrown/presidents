@@ -165,17 +165,7 @@ def _get_candidate_info(info_paragraph):
     return dict(name=name, title=title, candidacy_declared=candidacy_declared, status=status)
 
 
-def _iter_candidate_categories(links_paragraph):
-    '''
-    Parse links to speeches / statements / press releases / etc.
-    '''
-    for anchor in links_paragraph.find_all('a'):
-        category = anchor.get_text()
-        url = base_url + '/' + anchor['href']
-        yield category, url
-
-
-def fetch_election(year):
+def fetch_election_pids(year):
     '''
     Fetch all papers related to an election campaign; year should be one of:
     2016, 2012, 2008, 2004, 1960
@@ -193,17 +183,15 @@ def fetch_election(year):
         if len(paragraphs) > 0:
             info_paragraph, links_paragraph = paragraphs
             candidate = _get_candidate_info(info_paragraph)
-            for category, category_url in _iter_candidate_categories(links_paragraph):
+            # Parse links to speeches / statements / press releases / etc.
+            for anchor in links_paragraph.find_all('a'):
+                category = anchor.get_text()
+                category_url = base_url + '/' + anchor['href']
                 logger.info('Fetching papers from category "%s"', category)
                 category_soup = get_soup(category_url)
                 category_pids = _get_pids(category_soup)
                 for pid in category_pids:
-                    paper = fetch(pid)
-                    if candidate['name'] != paper['author']:
-                        logger.warn('candidate name "%s" does not match paper author "%s" (%s)',
-                            candidate['name'], paper['author'], pid)
-                    paper['category'] = category
-                    yield paper
+                    yield pid
 
 
 def fetch_inaugurals():
@@ -227,15 +215,14 @@ def fetch_inaugurals():
         yield paper
 
 
-def fetch_transition(year):
+def fetch_transition_pids(year):
     '''
     Fetch all papers related to a presidential transition; year should be one of:
     2017, 2009, 2001
     '''
     soup = get_soup(base_url + '/transition' + year + '.php')
     for pid in _get_pids(soup):
-        paper = fetch(pid)
-        yield paper
+        yield pid
 
 
 def _get_records_found(soup):
