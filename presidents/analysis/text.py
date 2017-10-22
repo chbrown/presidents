@@ -24,9 +24,8 @@ stopwords = {
     'contraction_suffixes': {'s', 'm', 're', 've', 'll', 'd', 't'},
     'contraction_prefixes': {'don', 'isn'},
 }
-standard_stopwords = {stopword
-    for key in ['google_1t', 'contraction_suffixes', 'contraction_prefixes']
-        for stopword in stopwords[key]}
+_standard_stopwords_keys = ['google_1t', 'contraction_suffixes', 'contraction_prefixes']
+standard_stopwords = {stopword for key in _standard_stopwords_keys for stopword in stopwords[key]}
 
 _non_linguistic = [
     'applause', 'cheers and applause', 'laughter',
@@ -120,8 +119,8 @@ def sentence_collocation_mapping(documents,
     '''
     iterates over pairs: value1 -> mapping of (value2 -> count)
     '''
-    first = lambda tup: tup[0]
-    second = lambda tup: tup[1]
+    first = operator.itemgetter(0)
+    second = operator.itemgetter(1)
     pairs = sentence_collocations(documents, test_token, map_token)
     for value1, pairs in itertools.groupby(sorted(pairs, key=first), first):
         yield value1, Counter(map(second, pairs))

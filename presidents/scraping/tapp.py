@@ -280,14 +280,16 @@ def fetch_pids(params):
         # Or something. Can't quite figure it out. It's weird.
 
         # get pids to end of year
-        params1 = dict(params, yearstart=last_date.year, yearend=last_date.year,
-                               monthstart=last_date.month, monthend='12',
-                               daystart=last_date.day, dayend='31')
+        params1 = dict(params,
+            yearstart=last_date.year, yearend=last_date.year,
+            monthstart=last_date.month, monthend='12',
+            daystart=last_date.day, dayend='31')
         for pid in fetch_pids(params1):
             yield pid
         # then start at the next year
-        params2 = dict(params, yearstart=last_date.year + 1, yearend='2020',
-                               monthstart='01', monthend='12',
-                               daystart='01', dayend='31')
+        params2 = dict(params,
+            yearstart=last_date.year + 1, yearend='2020',
+            monthstart='01', monthend='12',
+            daystart='01', dayend='31')
         for pid in fetch_pids(params2):
             yield pid

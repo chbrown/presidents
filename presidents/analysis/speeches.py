@@ -72,7 +72,6 @@ class TitledDocument(Mapping):
             return getattr(self, key)
         return self.metadata[key]
 
-
     @property
     def document(self):
         if not hasattr(self, '_document'):
