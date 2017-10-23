@@ -13,7 +13,7 @@ The substance of the analysis exists as IPython / Jupyter notebooks. See [`noteb
 
 To setup [`spaCy` (1.9.0)](https://spacy.io/docs/):
 
-    python -m spacy download en
+    python -m spacy download en_core_web_md
 
 
 ## License
