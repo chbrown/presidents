@@ -115,3 +115,29 @@ def bootstrap_strings(strings, collocation_mapping, n,
     collocated_lexemes = set(bootstrap_lexemes(lexemes, collocation_mapping, n))
     for lexeme in collocated_lexemes - lexemes:
         yield nlp.vocab[lexeme].orth_
+
+
+def context_spans(haystack_doc, needle_doc, preceding_tokens, subsequent_tokens):
+    '''
+    Return tuples for each (potentially overlapping) match of needle_doc within haystack_doc,
+    of the form (preceding_span, match_span, subsequent_span), where each *_span is a spaCy Span instance.
+
+    TODO: use doc.char_span(start, end, label=0, vector=None), introduced in spaCy v2.0.0a10
+    See https://github.com/explosion/spaCy/issues/1264 and https://github.com/explosion/spaCy/issues/1050
+    '''
+    # haystack_idx_to_i maps each token's character index within the entire document to its index
+    haystack_idx_to_i = {token.idx: token.i for token in haystack_doc}
+    #logger.info('Finished mapping {} haystack token offsets to indices'.format(len(haystack_idx_to_i)))
+    needle_re = re.compile(needle_doc.text, re.I)
+    needle_tokens = len(needle_doc)
+    for m in needle_re.finditer(haystack_doc.text):
+        start, end = m.span()
+        token_i = haystack_idx_to_i[start]
+        # calculate indices of windows; spaCy chokes on negative indices,
+        # but indices greater than the largest are totally okay
+        preceding_start = max(token_i - preceding_tokens, 0)
+        subsequent_start = token_i + needle_tokens
+        subsequent_end = subsequent_start + subsequent_tokens
+        yield (haystack_doc[preceding_start:token_i],
+               haystack_doc[token_i:subsequent_start],
+               haystack_doc[subsequent_start:subsequent_end])
