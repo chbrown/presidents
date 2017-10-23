@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+from __future__ import division, unicode_literals
 import os
 import operator
 import itertools
@@ -7,30 +7,8 @@ import string
 from collections import Counter
 import spacy
 # relative imports
-from .. import root
-from ..readers import read_strings
-
-# non-spaCy
-# =========
-
-stopwords_dirpath = os.path.join(root, 'stopwords')
-
-stopwords = {
-    'postgresql': set(read_strings(os.path.join(stopwords_dirpath, 'postgresql-english.txt'))),
-    'nltk': set(read_strings(os.path.join(stopwords_dirpath, 'nltk-english.txt'))),
-    'google_1t': set(read_strings(os.path.join(stopwords_dirpath, 'google-1t.txt'))),
-    'datomic': set(read_strings(os.path.join(stopwords_dirpath, 'datomic.txt'))),
-    'alphabet': set(string.ascii_lowercase),
-    'contraction_suffixes': {'s', 'm', 're', 've', 'll', 'd', 't'},
-    'contraction_prefixes': {'don', 'isn'},
-}
-_standard_stopwords_keys = ['google_1t', 'contraction_suffixes', 'contraction_prefixes']
-standard_stopwords = {stopword for key in _standard_stopwords_keys for stopword in stopwords[key]}
-
-_non_linguistic = [
-    'applause', 'cheers and applause', 'laughter',
-    'booing', 'boos', 'crosstalk', 'inaudible', 'silence']
-_non_linguistic_pattern = r'\[(' + '|'.join(_non_linguistic) + r')\]'
+from . import root
+from .models import nlp, parse, is_word
 
 
 def tokenize(s, stopwords=None):
@@ -48,37 +26,26 @@ def tokenize(s, stopwords=None):
         if stopwords is None or token not in stopwords:
             yield token
 
-# spaCy
-# =====
 
-nlp = spacy.en.English()
-# add missing stop words (contractions whose lemmas are stopwords, mostly)
-for word in ["'m", "'re", "'s", "ca", "n't", "'ill", "'ve", "'d"] + ['going', 'getting', 'got'] + ['-PRON-']:
-    lexeme = nlp.vocab[word]
-    lexeme.is_stop = True
-
-
-def parse(document):
+def token_counts(doc, attr_id=spacy.attrs.LOWER):
     '''
-    Use the nlp object to parse the given document if it's a string or unicode,
-    returning it unchanged if it's already a spacy.tokens.doc.Doc instance
+    Get a dict mapping tokens to counts for the given spaCy document, `doc`.
+
+    By default the tokens are lowercased strings, but this can be customized
+    by supplying a different `attr_id` value.
     '''
-    if isinstance(document, unicode):
-        return nlp(document)
-    elif isinstance(document, str):
-        return nlp(document.decode())
-    else:
-        return document
+    return {nlp.vocab.strings[string_id]: count
+            for string_id, count in doc.count_by(attr_id).iteritems()
+            if is_word(string_id)}
 
 
-def is_word(lexeme):
+def token_freqs(doc, attr_id=spacy.attrs.LOWER):
     '''
-    Return true if the given spacy.lexeme.Lexeme (or vocabulary-indexed ID)
-    is neither a stop word, nor punctuation, nor whitespace.
+    Like token_counts, but normalized so that all values sum to 1.
     '''
-    if not isinstance(lexeme, spacy.lexeme.Lexeme):
-        lexeme = nlp.vocab[lexeme]
-    return not (lexeme.is_stop or lexeme.is_punct or lexeme.is_space)
+    doc_token_counts = token_counts(doc, attr_id)
+    total = sum(doc_token_counts.values())
+    return {token: count / total for token, count in doc_token_counts.iteritems()}
 
 
 def sentence_collocations(documents,
