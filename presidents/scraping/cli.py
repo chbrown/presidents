@@ -4,7 +4,7 @@ import json
 import argparse
 import logging
 # sources (relative imports)
-from .. import logger, logger_verbosity_levels, uniq
+from .. import logger, uniq
 from . import abcnews, cbsnews, cspan, millercenter, tapp, whitehouse
 
 # each command should be a function from an argparse opts object to an iterable
@@ -30,6 +30,8 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--verbose', action='count', default=0,
         help='log extra information (repeat for even more, up to 3)')
+    # (none) => WARN, -v => INFO, -vv => DEBUG, -vvv => NOTSET
+    verbosity_levels = [logging.WARN, logging.INFO, logging.DEBUG, logging.NOTSET]  # [30, 20, 10, 0]
 
     # set up commands
     subparsers = parser.add_subparsers(dest='command', help='Command')
@@ -43,7 +45,7 @@ def main():
 
     opts = parser.parse_args()
 
-    logging_level = logger_verbosity_levels[opts.verbose]
+    logging_level = verbosity_levels[opts.verbose]
     logging.basicConfig(level=logging_level)
     logger.setLevel(logging_level)
 
