@@ -7,7 +7,7 @@ import string
 from collections import Counter
 import spacy
 # relative imports
-from . import root
+from . import root, logger
 from .models import nlp, parse, is_word
 
 
@@ -117,9 +117,9 @@ def bootstrap_strings(strings, collocation_mapping, n,
         yield nlp.vocab[lexeme].orth_
 
 
-def context_spans(haystack_doc, needle_doc, preceding_tokens, subsequent_tokens):
+def context_spans(haystack_doc, needle_re, preceding_window, subsequent_window):
     '''
-    Return tuples for each (potentially overlapping) match of needle_doc within haystack_doc,
+    Return tuples for each (potentially overlapping) match of needle_re within haystack_doc,
     of the form (preceding_span, match_span, subsequent_span), where each *_span is a spaCy Span instance.
 
     TODO: use doc.char_span(start, end, label=0, vector=None), introduced in spaCy v2.0.0a10
@@ -128,16 +128,32 @@ def context_spans(haystack_doc, needle_doc, preceding_tokens, subsequent_tokens)
     # haystack_idx_to_i maps each token's character index within the entire document to its index
     haystack_idx_to_i = {token.idx: token.i for token in haystack_doc}
     #logger.info('Finished mapping {} haystack token offsets to indices'.format(len(haystack_idx_to_i)))
-    needle_re = re.compile(needle_doc.text, re.I)
-    needle_tokens = len(needle_doc)
     for m in needle_re.finditer(haystack_doc.text):
         start, end = m.span()
-        token_i = haystack_idx_to_i[start]
-        # calculate indices of windows; spaCy chokes on negative indices,
-        # but indices greater than the largest are totally okay
-        preceding_start = max(token_i - preceding_tokens, 0)
-        subsequent_start = token_i + needle_tokens
-        subsequent_end = subsequent_start + subsequent_tokens
-        yield (haystack_doc[preceding_start:token_i],
-               haystack_doc[token_i:subsequent_start],
-               haystack_doc[subsequent_start:subsequent_end])
+        # not all matches will line up with a token
+        if start in haystack_idx_to_i:
+            token_i = haystack_idx_to_i[start]
+            # calculate indices of windows; spaCy chokes on negative indices,
+            # but indices greater than the largest are totally okay
+            preceding_start = max(token_i - preceding_window, 0)
+            # TODO: memoize this? most of the time group() will be the same, but
+            # we need to check how long it is, in spaCy terms
+            match_length = len(nlp(m.group(), tag=False, parse=False, entity=False))
+            subsequent_start = token_i + match_length
+            subsequent_end = subsequent_start + subsequent_window
+            yield (haystack_doc[preceding_start:token_i],
+                   haystack_doc[token_i:subsequent_start],
+                   haystack_doc[subsequent_start:subsequent_end])
+        else:
+            logger.debug('Failed to find token at idx={};'.format(start))
+
+
+def context_tokens(haystack_doc, needle_re, preceding_window, subsequent_window):
+    '''
+    Iterate over all the Tokens in all the pre/post context Spans
+    of all the matches of needle_re within haystack_doc.
+    '''
+    for pre_span, _, post_span in context_spans(haystack_doc, needle_re, preceding_window, subsequent_window):
+        for span in [pre_span, post_span]:
+            for token in span:
+                yield token
