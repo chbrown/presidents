@@ -45,7 +45,7 @@ def is_word(lexeme):
     Return true if the given spacy.lexeme.Lexeme (or vocabulary-indexed ID)
     is neither a stop word, nor punctuation, nor whitespace.
     '''
-    if not isinstance(lexeme, spacy.lexeme.Lexeme):
+    if not isinstance(lexeme, (spacy.lexeme.Lexeme, spacy.tokens.Token)):
         lexeme = nlp.vocab[lexeme]
     return not (lexeme.is_stop or lexeme.is_punct or lexeme.is_space)
 
