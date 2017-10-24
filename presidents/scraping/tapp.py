@@ -6,7 +6,7 @@ from bs4.element import NavigableString
 # relative imports
 from . import get_soup, get_html, iter_lines
 from .. import logger, parse_date, root
-from ..readers import read_ldjson
+from ..readers import read_strings, read_ldjson
 
 base_url = 'http://www.presidency.ucsb.edu'
 
@@ -249,6 +249,20 @@ def _get_records_found(soup):
         if text.startswith('Record(s) found:'):
             return int(text.split(':')[-1])
     return 0
+
+
+def read_president_pids(president):
+    '''
+    Read all the pids locally recorded for the given president id (their ordinal number).
+    '''
+    pids_path = os.path.join(root, 'data', 'tapp', 'president', '{}.pids'.format(president))
+    # iterates over a list of strings, without newlines
+    return read_strings(pids_path)
+
+
+def read_president_papers(president):
+    pids = read_president_pids(president)
+    return read_from_local_cache(pids)
 
 
 def fetch_pids(params):
