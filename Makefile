@@ -10,10 +10,11 @@ install:
 	pwd > /usr/local/lib/python2.7/site-packages/presidents.pth
 
 clean:
-	rm presidents/**/*.pyc
+	rm -f presidents/**/*.pyc
+	rm -rf presidents/**/__pycache__/
 
 check:
-	pep8 presidents/**/*.py
+	pycodestyle presidents/**/*.py
 
 # Miller Center
 # =============
