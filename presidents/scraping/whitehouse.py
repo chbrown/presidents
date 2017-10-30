@@ -1,4 +1,5 @@
-from urlparse import urljoin
+from __future__ import unicode_literals
+from urllib.parse import urljoin
 import requests
 # relative imports
 from . import get_soup, iter_lines
@@ -17,7 +18,7 @@ def _fetch_page(url):
     content = soup.select_one('#content-start')
     # body = content.select_one('.forall-body.field-type-text-long')
     bodies = content.select('.forall-body')
-    text = u'\n'.join(iter_lines(*bodies))
+    text = '\n'.join(iter_lines(*bodies))
     return {
         'source': url,
         'timestamp': parse_date(date).isoformat(),
@@ -70,7 +71,7 @@ def _fetch_group(briefing_room_group):
             page = _fetch_page(page_url)
             yield dict(title=title, **page)
         except requests.exceptions.TooManyRedirects as exc:
-            logger.warn('Failed to fetch "%s": %s', page_url, exc)
+            logger.warning('Failed to fetch "%s": %s', page_url, exc)
 
 
 briefing_room_groups = [

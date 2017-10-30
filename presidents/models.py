@@ -1,8 +1,6 @@
 from __future__ import division, unicode_literals
 import os
-import re
 import string
-from collections import Counter
 import spacy
 # relative imports
 from . import root
@@ -30,9 +28,9 @@ standard_stopwords = {stopword for key in _standard_stopwords_keys for stopword 
 
 nlp = spacy.load('en_core_web_md')
 # add missing stop words (contractions whose lemmas are stopwords, mostly)
-for word in ["'m", "'re", "'s", "ca", "n't", "'ill", "'ve", "'d"] + ['going', 'getting', 'got'] + ['-PRON-']:
-    lexeme = nlp.vocab[word]
-    lexeme.is_stop = True
+for stop_string in ["'m", "'re", "'s", "ca", "n't", "'ill", "'ve", "'d"] + ['going', 'getting', 'got'] + ['-PRON-']:
+    stop_lexeme = nlp.vocab[stop_string]
+    stop_lexeme.is_stop = True
 
 
 def is_word(lexeme):
@@ -50,9 +48,6 @@ def parse(document):
     Use the nlp object to parse the given document if it's a string or unicode,
     returning it unchanged if it's already a spacy.tokens.doc.Doc instance
     '''
-    if isinstance(document, unicode):
-        return nlp(document)
-    elif isinstance(document, str):
-        return nlp(document.decode())
-    else:
+    if isinstance(document, spacy.tokens.doc.Doc):
         return document
+    return nlp(document)

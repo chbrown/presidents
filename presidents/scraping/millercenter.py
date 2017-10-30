@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import re
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -17,8 +18,7 @@ def _split_title(title):
         title = re.sub(date_regex, '', title).strip()
         date = datetime.strptime(date_match.group(1), '%B %d, %Y')
         return title, date
-    else:
-        return title, None
+    return title, None
 
 
 def _iter_speeches():
@@ -38,13 +38,13 @@ def _iter_paragraphs(transcript):
         if child.name == 'h2' and child.string == 'Transcript':
             continue
         elif isinstance(child, NavigableString):
-            yield unicode(child)
+            yield str(child)
         else:
             for subchild in child.children:
                 if subchild.name == 'br':
                     pass
                 elif isinstance(subchild, NavigableString):
-                    yield unicode(subchild)
+                    yield str(subchild)
                 else:
                     yield subchild.get_text()
 
@@ -66,7 +66,7 @@ def fetch_speeches():
         if transcript:
             paragraphs = [paragraph.strip() for paragraph in _iter_paragraphs(transcript) if not paragraph.isspace()]
             # replace &nbsp; + space with just the space
-            text = '\n'.join(paragraphs).replace(u'\xA0 ', ' ')
+            text = '\n'.join(paragraphs).replace('\xA0 ', ' ')
             timestamp = date.date().isoformat() if date else None
             yield {
                 'author': author,

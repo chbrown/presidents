@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import os
 import re
 import warnings
@@ -7,7 +8,7 @@ import requests_cache
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 # relative imports
-from .. import empty, not_empty, strip, logger
+from .. import logger
 
 requests_cache_filepath = os.getenv('PYTHON_REQUESTS_CACHE', '/tmp/python-requests_cache')
 requests_cache.install_cache(requests_cache_filepath)
@@ -24,22 +25,22 @@ def iter_texts(element):
     '''
     # we want to collect contiguous spans of strings or non-block elements as a single paragraph
     if isinstance(element, NavigableString):
-        yield unicode(element)
+        yield str(element)
     elif element.name == 'li':
-        yield u'\n'
-        yield u'* '
+        yield '\n'
+        yield '* '
         for child in element.children:
             for text in iter_texts(child):
                 yield text
-        yield u'\n'
+        yield '\n'
     elif element.name in {'br', 'hr'}:
-        yield u'\n'
+        yield '\n'
     elif element.name in {'p', 'div', 'ol', 'ul'}:
-        yield u'\n'
+        yield '\n'
         for child in element.children:
             for text in iter_texts(child):
                 yield text
-        yield u'\n'
+        yield '\n'
     else:
         for child in element.children:
             for text in iter_texts(child):
@@ -52,7 +53,7 @@ def iter_lines(*elements):
     contiguous line breaks, yielding individual lines as unicode strings
     '''
     texts = (text for element in elements for text in iter_texts(element))
-    lines = u''.join(texts).split(u'\n')
+    lines = ''.join(texts).split('\n')
     for line in lines:
         stripped_line = line.strip()
         if len(stripped_line) != 0:

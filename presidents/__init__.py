@@ -6,7 +6,7 @@ import pytz
 import dateutil.parser
 import dateutil.tz
 
-logging.basicConfig(level=logging.WARN)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger('presidents')
 
 # `here` is the directory containing this file
@@ -14,27 +14,6 @@ here = os.path.dirname(__file__) or os.curdir
 # `root` is the directory containing the "presidents" package
 # (i.e., the git repo root)
 root = os.path.dirname(here)
-
-
-def empty(xs):
-    return len(xs) == 0
-
-
-def not_empty(xs):
-    return len(xs) != 0
-
-
-def strip(s):
-    '''because str.strip and unicode.strip are not the same'''
-    return s.strip()
-
-
-def uniq(xs):
-    seen = set()
-    for x in xs:
-        if x not in seen:
-            yield x
-        seen.add(x)
 
 
 def jaccard_index(xs, ys):
@@ -51,36 +30,42 @@ def jaccard_index(xs, ys):
     # in which case we define the result as 1
     return 1
 
-_excluded_tzname_prefixes = (
-    'Etc/',
-    'Asia/', 'Indian/', 'Australia/', 'Pacific/',
-    'Europe/', 'Atlantic/',
-    'Brazil/',
-    'Africa/',
-    'Antarctica/', 'Arctic/')
-tzinfos = {name: dateutil.tz.gettz(name)
-           for name in pytz.all_timezones
-           if not name.startswith(_excluded_tzname_prefixes)}
-# _tz_aliases is a hack for 2-letter abbreviations
-_tz_aliases = {'PT': 'US/Pacific',
-               'MT': 'US/Mountain',
-               'CT': 'US/Central',
-               'ET': 'US/Eastern'}
-for alias in _tz_aliases:
-    tzinfos[alias] = tzinfos[_tz_aliases[alias]]
+
+def _iter_tzinfos():
+    excluded_tzname_prefixes = (
+        'Etc/',
+        'Asia/', 'Indian/', 'Australia/', 'Pacific/',
+        'Europe/', 'Atlantic/',
+        'Brazil/',
+        'Africa/',
+        'Antarctica/', 'Arctic/')
+    for name in pytz.all_timezones:
+        if not name.startswith(excluded_tzname_prefixes):
+            yield name, dateutil.tz.gettz(name)
+
+    # tz_aliases is a hack for 2-letter abbreviations
+    tz_aliases = {
+        'PT': 'US/Pacific',
+        'MT': 'US/Mountain',
+        'CT': 'US/Central',
+        'ET': 'US/Eastern'}
+    for alias in tz_aliases:
+        yield alias, tzinfos[tz_aliases[alias]]
+
+tzinfos = dict(_iter_tzinfos())
 
 
-def parse_date(s, default_tzinfo=None):
+def parse_date(text, default_tzinfo=None):
     '''
-    Parse the string `s` as a standard Python datetime using the dateutil library,
+    Parse the string `text` as a standard Python datetime using the dateutil library,
     setting its timezone to `default_tzinfo`
     iff default_tzinfo is provided _and_ `s` does not specify a timezone.
     '''
-    date = dateutil.parser.parse(s, fuzzy=True, tzinfos=tzinfos)
+    date_object = dateutil.parser.parse(text, fuzzy=True, tzinfos=tzinfos)
     if default_tzinfo is not None:
-        logger.debug('Setting timezone for %s to default: %s', date, default_tzinfo)
-        date = date.replace(tzinfo=date.tzinfo or default_tzinfo)
-    return date
+        logger.debug('Setting timezone for %s to default: %s', date_object, default_tzinfo)
+        date_object = date_object.replace(tzinfo=date_object.tzinfo or default_tzinfo)
+    return date_object
 
 
 def calculate_election_day(inauguration_date):

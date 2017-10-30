@@ -1,13 +1,12 @@
 from __future__ import division, unicode_literals
-import os
 import operator
 import itertools
+from functools import reduce
 import re
-import string
 from collections import Counter
 import spacy
 # relative imports
-from . import root, logger
+from . import logger
 from .models import nlp, parse, is_word
 
 _non_linguistic = [
@@ -104,7 +103,8 @@ def bootstrap_lexemes(lexemes, collocation_mapping, n):
     collocation_mapping: dict/mapping of lexeme -> Counter(mapping of lexeme -> count)
     '''
     collocation_counters = (collocation_mapping.get(lexeme, Counter()) for lexeme in lexemes)
-    for collocated_lexeme, _ in reduce(operator.add, collocation_counters).most_common(n):
+    combined_counters = reduce(operator.add, collocation_counters)
+    for collocated_lexeme, _ in combined_counters.most_common(n):
         yield collocated_lexeme
 
 
@@ -133,8 +133,9 @@ def context_spans(haystack_doc, needle_re, preceding_window, subsequent_window):
     # haystack_idx_to_i maps each token's character index within the entire document to its index
     haystack_idx_to_i = {token.idx: token.i for token in haystack_doc}
     #logger.info('Finished mapping {} haystack token offsets to indices'.format(len(haystack_idx_to_i)))
-    for m in needle_re.finditer(haystack_doc.text):
-        start, end = m.span()
+    for match in needle_re.finditer(haystack_doc.text):
+        # start, end = m.span()
+        start = match.start()
         # not all matches will line up with a token
         if start in haystack_idx_to_i:
             token_i = haystack_idx_to_i[start]
@@ -143,14 +144,14 @@ def context_spans(haystack_doc, needle_re, preceding_window, subsequent_window):
             preceding_start = max(token_i - preceding_window, 0)
             # TODO: memoize this? most of the time group() will be the same, but
             # we need to check how long it is, in spaCy terms
-            match_length = len(nlp(m.group(), tag=False, parse=False, entity=False))
+            match_length = len(nlp(match.group(), tag=False, parse=False, entity=False))
             subsequent_start = token_i + match_length
             subsequent_end = subsequent_start + subsequent_window
             yield (haystack_doc[preceding_start:token_i],
                    haystack_doc[token_i:subsequent_start],
                    haystack_doc[subsequent_start:subsequent_end])
         else:
-            logger.debug('Failed to find token at idx={};'.format(start))
+            logger.debug('Failed to find token at idx=%d', start)
 
 
 def context_tokens(haystack_doc, needle_re, preceding_window, subsequent_window):

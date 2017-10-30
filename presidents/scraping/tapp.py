@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import os
 import re
 from datetime import datetime
@@ -166,7 +167,7 @@ def _get_paragraph_lines(p):
         if child.name == 'br':
             continue
         elif isinstance(child, NavigableString):
-            yield unicode(child)
+            yield str(child)
         else:
             yield child.get_text()
 
@@ -176,7 +177,7 @@ def _get_candidate_info(info_paragraph):
     Parse candidate information
     '''
     lines = [line.strip() for line in _get_paragraph_lines(info_paragraph)
-        if line.strip() not in (u'Candidacy Declared:', 'Status:', '')]
+             if line.strip() not in ('Candidacy Declared:', 'Status:', '')]
     name, title, candidacy_declared, status = lines
     return dict(name=name, title=title, candidacy_declared=candidacy_declared, status=status)
 
@@ -196,8 +197,9 @@ def fetch_election_pids(year):
     container = soup.find('td', class_='doctext').find_parent('table')
     for td in container.find_all('td', class_='doctext'):
         paragraphs = td.find_all('p')
-        if len(paragraphs) > 0:
+        if paragraphs:
             info_paragraph, links_paragraph = paragraphs
+            # candidate is unused, in this formulation
             candidate = _get_candidate_info(info_paragraph)
             # Parse links to speeches / statements / press releases / etc.
             for anchor in links_paragraph.find_all('a'):
@@ -261,6 +263,9 @@ def read_president_pids(president):
 
 
 def read_president_papers(president):
+    '''
+    Find the pids for the given president, then read the corresponding papers.
+    '''
     pids = read_president_pids(president)
     return read_from_local_cache(pids)
 
@@ -280,30 +285,30 @@ def fetch_pids(params):
 
     soup = get_soup(base_url + '/ws/index.php', params=params)
     records_found = _get_records_found(soup)
-    logger.debug('fetching {} total pids'.format(records_found))
+    logger.debug('fetching %d total pids', records_found)
 
     page_pids = list(_get_pids(soup))
-    logger.debug('found {} pids on current page'.format(len(page_pids)))
+    logger.debug('found %d pids on current page', len(page_pids))
     for pid in page_pids:
         yield pid
     if len(page_pids) < records_found:
         last_date = parse_date(soup.select('.listdate')[-1].get_text())
-        logger.debug('continuing from last_date: {}'.format(last_date))
+        logger.debug('continuing from last_date: %s', last_date)
 
         # The TAPP website considers years and month/day separately when searching by year.
         # Or something. Can't quite figure it out. It's weird.
 
         # get pids to end of year
         params1 = dict(params,
-            yearstart=last_date.year, yearend=last_date.year,
-            monthstart=last_date.month, monthend='12',
-            daystart=last_date.day, dayend='31')
+                       yearstart=last_date.year, yearend=last_date.year,
+                       monthstart=last_date.month, monthend='12',
+                       daystart=last_date.day, dayend='31')
         for pid in fetch_pids(params1):
             yield pid
         # then start at the next year
         params2 = dict(params,
-            yearstart=last_date.year + 1, yearend='2020',
-            monthstart='01', monthend='12',
-            daystart='01', dayend='31')
+                       yearstart=last_date.year + 1, yearend='2020',
+                       monthstart='01', monthend='12',
+                       daystart='01', dayend='31')
         for pid in fetch_pids(params2):
             yield pid

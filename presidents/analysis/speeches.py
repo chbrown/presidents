@@ -1,10 +1,9 @@
-import sys
 from collections import Counter, Mapping
-from spacy import attrs
+import spacy
 # relative imports
-from .text import tokenize, is_word, nlp, parse
+from .. import parse_date, tzinfos
+from ..text import tokenize, is_word, parse
 from ..readers import read_ldjson
-from .. import parse_date, tzinfos, logger
 
 
 def iter_speech_counts(speech, synsets, stopwords=None):
@@ -123,19 +122,19 @@ class Speech(Mapping):
     @property
     def lemma_counts(self):
         if not hasattr(self, '_lemma_counts'):
-            self._lemma_counts = _count_words(self.document, attrs.LEMMA)
+            self._lemma_counts = _count_words(self.document, spacy.attrs.LEMMA)
         return self._lemma_counts
 
     @property
     def orth_counts(self):
         if not hasattr(self, '_orth_counts'):
-            self._orth_counts = _count_words(self.document, attrs.ORTH)
+            self._orth_counts = _count_words(self.document, spacy.attrs.ORTH)
         return self._orth_counts
 
     @property
     def lower_counts(self):
         if not hasattr(self, '_lower_counts'):
-            self._lower_counts = _count_words(self.document, attrs.LOWER)
+            self._lower_counts = _count_words(self.document, spacy.attrs.LOWER)
         return self._lower_counts
 
 
