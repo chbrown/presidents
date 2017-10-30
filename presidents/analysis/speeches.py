@@ -46,7 +46,7 @@ def iter_groups_speeches_count(groups, synsets, stopwords=None):
 
 
 def _count_words(document, attr):
-    return {k: v for k, v in document.count_by(attr).iteritems() if is_word(k)}
+    return {k: v for k, v in document.count_by(attr).items() if is_word(k)}
 
 
 class TitledDocument(Mapping):

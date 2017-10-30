@@ -40,7 +40,7 @@ def token_counts(doc, attr_id=spacy.attrs.LOWER):
     by supplying a different `attr_id` value.
     '''
     return {nlp.vocab.strings[string_id]: count
-            for string_id, count in doc.count_by(attr_id).iteritems()
+            for string_id, count in doc.count_by(attr_id).items()
             if is_word(string_id)}
 
 
@@ -50,7 +50,7 @@ def token_freqs(doc, attr_id=spacy.attrs.LOWER):
     '''
     doc_token_counts = token_counts(doc, attr_id)
     total = sum(doc_token_counts.values())
-    return {token: count / total for token, count in doc_token_counts.iteritems()}
+    return {token: count / total for token, count in doc_token_counts.items()}
 
 
 def sentence_collocations(documents,
