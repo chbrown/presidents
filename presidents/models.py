@@ -25,11 +25,6 @@ stopwords = {
 _standard_stopwords_keys = ['google_1t', 'contraction_suffixes', 'contraction_prefixes']
 standard_stopwords = {stopword for key in _standard_stopwords_keys for stopword in stopwords[key]}
 
-_non_linguistic = [
-    'applause', 'cheers and applause', 'laughter',
-    'booing', 'boos', 'crosstalk', 'inaudible', 'silence']
-_non_linguistic_pattern = r'\[(' + '|'.join(_non_linguistic) + r')\]'
-
 # spaCy
 # =====
 

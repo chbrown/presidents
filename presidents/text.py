@@ -10,6 +10,11 @@ import spacy
 from . import root, logger
 from .models import nlp, parse, is_word
 
+_non_linguistic = [
+    'applause', 'cheers and applause', 'laughter',
+    'booing', 'boos', 'crosstalk', 'inaudible', 'silence']
+_non_linguistic_pattern = r'\[(' + '|'.join(_non_linguistic) + r')\]'
+
 
 def tokenize(s, stopwords=None):
     # normalize abbreviations to avoid stranded initials
