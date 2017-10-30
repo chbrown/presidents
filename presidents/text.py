@@ -31,6 +31,26 @@ def tokenize(s, stopwords=None):
             yield token
 
 
+def iter_substantive_words(tokens):
+    '''
+    Convert a sequence of tokens (can be strings or spaCy Token instances)
+    into a (potentially shorter) sequence of lowercase strings.
+
+    Discards tokens that are OOV, punctuation, whitespace, digits,
+    or single letters (besides "a" and "I").
+    '''
+    for token in tokens:
+        # convert to spaCy Lexeme if needed
+        if not isinstance(token, (spacy.lexeme.Lexeme, spacy.tokens.Token)):
+            token = nlp.vocab[token]
+        # discard OOV, punctuation, spaces, and numbers
+        if not (token.is_oov or token.is_punct or token.is_space or token.is_digit):
+            text = token.text.lower()
+            # discard single letters
+            if len(text) > 1 or text in {'a', 'i'}:
+                yield text
+
+
 def token_counts(doc, attr_id=spacy.attrs.LOWER):
     '''
     Get a dict mapping tokens to counts for the given spaCy document, `doc`.
