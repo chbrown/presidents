@@ -1,6 +1,5 @@
 from __future__ import division, unicode_literals
 import os
-import string
 import spacy
 # relative imports
 from . import root
@@ -9,28 +8,30 @@ from .readers import read_strings
 # non-spaCy
 # =========
 
-stopwords_dirpath = os.path.join(root, 'stopwords')
+contraction_suffixes = {"'s", "s",
+                        "'m", "m",
+                        "'re", "re",
+                        "'ll", "ll",
+                        "'ve", "ve",
+                        "'d", "d",
+                        "n't", "t"}
+contraction_prefixes = {'ca', 'don', 'isn'}
 
-stopwords = {
-    'postgresql': set(read_strings(os.path.join(stopwords_dirpath, 'postgresql-english.txt'))),
-    'nltk': set(read_strings(os.path.join(stopwords_dirpath, 'nltk-english.txt'))),
-    'google_1t': set(read_strings(os.path.join(stopwords_dirpath, 'google-1t.txt'))),
-    'datomic': set(read_strings(os.path.join(stopwords_dirpath, 'datomic.txt'))),
-    'alphabet': set(string.ascii_lowercase),
-    'contraction_suffixes': {'s', 'm', 're', 've', 'll', 'd', 't'},
-    'contraction_prefixes': {'don', 'isn'},
-}
-_standard_stopwords_keys = ['google_1t', 'contraction_suffixes', 'contraction_prefixes']
-standard_stopwords = {stopword for key in _standard_stopwords_keys for stopword in stopwords[key]}
+# postgresql_stopwords = set(read_strings(os.path.join(root, 'stopwords', 'postgresql-english.txt')))
+# nltk_stopwords = set(read_strings(os.path.join(root, 'stopwords', 'nltk-english.txt')))
+# datomic_stopwords = set(read_strings(os.path.join(root, 'stopwords', 'datomic.txt')))
+google_1t_stopwords = set(read_strings(os.path.join(root, 'stopwords', 'google-1t.txt')))
+
+standard_stopwords = google_1t_stopwords | contraction_suffixes | contraction_prefixes
 
 # spaCy
 # =====
 
 nlp = spacy.load('en_core_web_md')
 # add missing stop words (contractions whose lemmas are stopwords, mostly)
-for stop_string in ["'m", "'re", "'s", "ca", "n't", "'ill", "'ve", "'d"] + ['going', 'getting', 'got'] + ['-PRON-']:
-    stop_lexeme = nlp.vocab[stop_string]
-    stop_lexeme.is_stop = True
+for stopword_string in contraction_suffixes | {'going', 'getting', 'got'} | {'-PRON-'}:
+    stopword_lexeme = nlp.vocab[stopword_string]
+    stopword_lexeme.is_stop = True
 
 
 def is_word(lexeme):
