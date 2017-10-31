@@ -44,13 +44,13 @@ def _iter_tzinfos():
             yield name, dateutil.tz.gettz(name)
 
     # tz_aliases is a hack for 2-letter abbreviations
-    tz_aliases = {
-        'PT': 'US/Pacific',
-        'MT': 'US/Mountain',
-        'CT': 'US/Central',
-        'ET': 'US/Eastern'}
-    for alias in tz_aliases:
-        yield alias, tzinfos[tz_aliases[alias]]
+    tz_aliases = [
+        ('PT', 'US/Pacific'),
+        ('MT', 'US/Mountain'),
+        ('CT', 'US/Central'),
+        ('ET', 'US/Eastern')]
+    for alias, name in tz_aliases:
+        yield alias, dateutil.tz.gettz(name)
 
 tzinfos = dict(_iter_tzinfos())
 
