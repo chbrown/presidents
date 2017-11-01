@@ -51,8 +51,8 @@ def main():
 
     command = commands[opts.command]
     for obj in command(opts):
-        json_unicode = json.dumps(obj, sort_keys=True, ensure_ascii=False)
-        sys.stdout.write(json_unicode.encode('utf-8'))
+        json_string = json.dumps(obj, sort_keys=True, ensure_ascii=False)
+        sys.stdout.write(json_string)
         sys.stdout.write('\n')
         sys.stdout.flush()
 
