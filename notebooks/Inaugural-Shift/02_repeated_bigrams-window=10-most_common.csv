@@ -1,0 +1,6 @@
+president_id,president,n_tokens,n_repeated_bigrams,most_common_repeated_bigrams
+41,George Bush,794483,7266,of the; in the; thank you; to the; and i; it 's; and the; god bless; for the; the president; going to; i 'm; we 're; want to; on the; that 's; i think; do n't; it is; i do
+42,William J. Clinton,2273566,25218,of the; in the; it 's; the president; do n't; i think; to the; going to; that 's; we 're; and the; he 's; thank you; on the; ms myers; it was; we have; will be; to be; to do
+43,George W. Bush,1033892,13077,of the; thank you; it 's; in the; that 's; i 'm; to the; and i; a lot; to be; going to; we 're; for the; the president; and the; he 's; 's a; want to; it is; from to
+44,Barack Obama,1678236,19096,of the; thank you; it 's; that 's; going to; in the; we 're; we can; that we; i 'm; to be; to the; we will; we 've; this is; we have; i think; for the; the same; do n't
+45,Donald J. Trump,1020555,21810,thank you; going to; it 's; we 're; of the; we will; 're going; they 're; we have; that 's; do n't; i 'm; we are; make america; will make; god bless; to be; a lot; in the; want to
