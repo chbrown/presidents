@@ -253,6 +253,18 @@ def _get_records_found(soup):
     return 0
 
 
+def read_category_pids(*category_ids):
+    for category_id in category_ids:
+        pids_path = os.path.join(root, 'data', 'tapp', 'category', '{}.pids'.format(category_id))
+        for pid in read_strings(pids_path):
+            yield pid
+
+
+def read_category_papers(*category_ids):
+    pids = read_category_pids(*category_ids)
+    return read_from_local_cache(pids)
+
+
 def read_president_pids(president):
     '''
     Read all the pids locally recorded for the given president id (their ordinal number).
