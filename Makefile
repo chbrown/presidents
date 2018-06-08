@@ -63,6 +63,8 @@ data/whitehouse/all.json:
 # Twitter
 # =======
 
+# These files are served live at http://www.trumptwitterarchive.com/
+
 # the following is implicitly .INTERMEDIATE
 data/twitter/realDonaldTrump-%.json.zip:
 	curl -sL https://github.com/bpb27/trump_tweet_data_archive/raw/master/master_$*.json.zip > $@
