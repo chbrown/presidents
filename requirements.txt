@@ -1,10 +1,11 @@
-requests==2.18.4
+requests==2.19.1
 requests-cache==0.4.13
 beautifulsoup4==4.6.0
 python-dateutil==2.6.1
 pytz==2017.2
-spacy==1.9.0
-cytoolz==0.8.2
-ftfy==5.1.1
+# spacy v2 is much slower/heavier when parsing very large documents
+spacy==1.10.1
+cytoolz==0.9.0.1
+ftfy==5.4.1
 liwc==0.3.0
-pycodestyle==2.3.1
+pycodestyle==2.4.0
