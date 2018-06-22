@@ -19,3 +19,4 @@ altair==1.2.1
 wordcloud==1.4.1
 pycairo==1.17.0
 textacy==0.4.1
+tqdm==4.23.4
