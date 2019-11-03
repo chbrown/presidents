@@ -1,6 +1,7 @@
 import os
+
 import spacy
-# relative imports
+
 from . import root
 from .readers import read_strings
 

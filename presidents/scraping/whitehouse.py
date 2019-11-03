@@ -1,6 +1,6 @@
 from urllib.parse import urljoin
 import requests
-# relative imports
+
 from . import get_soup, iter_lines
 from .. import logger, parse_date
 

@@ -3,7 +3,7 @@ import json
 import argparse
 import logging
 from cytoolz import unique
-# sources (relative imports)
+
 from .. import logger
 from . import abcnews, cbsnews, cspan, millercenter, tapp, whitehouse
 

@@ -1,9 +1,10 @@
 import os
 import re
 from datetime import datetime
+
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
-# relative imports
+
 from . import get_soup, get_html, iter_lines
 from .. import logger, parse_date, root
 from ..readers import read_strings, read_ldjson

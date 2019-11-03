@@ -1,4 +1,3 @@
-# relative imports
 from . import get_soup
 from .. import parse_date, tzinfos
 

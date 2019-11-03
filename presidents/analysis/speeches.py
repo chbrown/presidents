@@ -1,6 +1,6 @@
 from collections import Counter, Mapping
 import spacy
-# relative imports
+
 from .. import parse_date, tzinfos
 from ..text import tokenize, is_word, parse
 from ..readers import read_ldjson

@@ -4,7 +4,7 @@ from functools import reduce
 import re
 from collections import Counter
 import spacy
-# relative imports
+
 from . import logger
 from .models import nlp, parse, is_word
 

@@ -3,7 +3,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 import requests
-# relative imports
+
 from . import get_soup
 from .. import logger
 

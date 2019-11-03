@@ -1,5 +1,5 @@
 from bs4.element import NavigableString
-# relative imports
+
 from . import get_soup, iter_datalist_pairs
 from .. import parse_date
 
