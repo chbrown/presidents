@@ -2,13 +2,13 @@ import os
 import re
 import json
 from datetime import datetime
+from pathlib import Path
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 
 from . import get_soup, get_html, iter_lines
 from .. import logger, parse_date, root
-from ..readers import read_strings
 
 base_url = 'http://www.presidency.ucsb.edu'
 
@@ -258,9 +258,8 @@ def _get_records_found(soup):
 
 def read_category_pids(*category_ids):
     for category_id in category_ids:
-        pids_path = os.path.join(root, 'data', 'tapp', 'category', '{}.pids'.format(category_id))
-        for pid in read_strings(pids_path):
-            yield pid
+        pids_path = Path(root) / 'data' / 'tapp' / 'category' / f'{category_id}.pids'
+        yield from pids_path.read_text().splitlines()
 
 
 def read_category_papers(*category_ids):
@@ -272,9 +271,8 @@ def read_president_pids(president):
     '''
     Read all the pids locally recorded for the given president id (their ordinal number).
     '''
-    pids_path = os.path.join(root, 'data', 'tapp', 'president', '{}.pids'.format(president))
-    # iterates over a list of strings, without newlines
-    return read_strings(pids_path)
+    pids_path = Path(root) / 'data' / 'tapp' / 'president' / f'{president}.pids'
+    yield from pids_path.read_text().splitlines()
 
 
 def read_president_papers(president):

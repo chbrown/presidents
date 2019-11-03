@@ -1,9 +1,9 @@
 import os
+from pathlib import Path
 
 import spacy
 
 from . import root
-from .readers import read_strings
 
 # non-spaCy
 # =========
@@ -17,10 +17,11 @@ contraction_suffixes = {"'s", "s",
                         "n't", "t"}
 contraction_prefixes = {'ca', 'don', 'isn'}
 
-# postgresql_stopwords = set(read_strings(os.path.join(root, 'stopwords', 'postgresql-english.txt')))
-# nltk_stopwords = set(read_strings(os.path.join(root, 'stopwords', 'nltk-english.txt')))
-# datomic_stopwords = set(read_strings(os.path.join(root, 'stopwords', 'datomic.txt')))
-google_1t_stopwords = set(read_strings(os.path.join(root, 'stopwords', 'google-1t.txt')))
+_stopwords_dir = Path(root) / 'stopwords'
+# postgresql_stopwords = set((_stopwords_dir / 'postgresql-english.txt').read_text().splitlines())
+# nltk_stopwords = set((_stopwords_dir / 'nltk-english.txt').read_text().splitlines())
+# datomic_stopwords = set((_stopwords_dir / 'datomic.txt').read_text().splitlines())
+google_1t_stopwords = set((_stopwords_dir / 'google-1t.txt').read_text().splitlines())
 
 standard_stopwords = google_1t_stopwords | contraction_suffixes | contraction_prefixes
 
