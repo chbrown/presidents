@@ -15,21 +15,6 @@ here = os.path.dirname(__file__) or os.curdir
 root = os.path.dirname(here)
 
 
-def jaccard_index(xs, ys):
-    '''
-    Calculate the intersection over the union of xs and ys,
-    converting xs and ys to sets if they are not already.
-    '''
-    xset = set(xs)
-    yset = set(ys)
-    union = len(xset | yset)
-    if union != 0:
-        return len(xset & yset) / union
-    # if union is empty, the intersection must also be empty,
-    # in which case we define the result as 1
-    return 1
-
-
 def _iter_tzinfos():
     excluded_tzname_prefixes = (
         'Etc/',
