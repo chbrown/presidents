@@ -1,4 +1,3 @@
-from __future__ import division, unicode_literals
 import operator
 import itertools
 from functools import reduce

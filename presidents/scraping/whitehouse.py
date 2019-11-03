@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from urllib.parse import urljoin
 import requests
 # relative imports
