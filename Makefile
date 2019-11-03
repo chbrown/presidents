@@ -12,6 +12,7 @@ install:
 clean:
 	rm -f presidents/**/*.pyc
 	rm -rf presidents/**/__pycache__/
+	rm -f data/tapp/all.local-cache.json
 
 check:
 	pycodestyle presidents/**/*.py
