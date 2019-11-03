@@ -81,7 +81,7 @@ def reencode_response(response):
     defaults to ISO-8859-1, which is close to TAPP's usual windows-1251, but not
     quite the same.
     '''
-    content_type = re.search(r'<meta.+charset=([a-z0-9-]+)', response.content, re.I)
+    content_type = re.search(br'<meta.+charset=([a-z0-9-]+)', response.content, re.I)
     if content_type:
         encoding = content_type.group(1)
         logger.debug('Setting encoding to "%s" from //meta[charset] attribute', encoding)
