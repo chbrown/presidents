@@ -1,5 +1,6 @@
 import os
 import re
+import json
 from datetime import datetime
 
 from bs4 import BeautifulSoup
@@ -7,7 +8,7 @@ from bs4.element import NavigableString
 
 from . import get_soup, get_html, iter_lines
 from .. import logger, parse_date, root
-from ..readers import read_strings, read_ldjson
+from ..readers import read_strings
 
 base_url = 'http://www.presidency.ucsb.edu'
 
@@ -145,7 +146,9 @@ def fetch(pid):
 
 def read_local_cache():
     all_json_path = os.path.join(root, 'data', 'tapp', 'all.local-cache.json')
-    return read_ldjson(all_json_path)
+    with open(all_json_path) as fp:
+        for line in fp:
+            yield json.loads(line)
 
 
 def read_from_local_cache(pids):

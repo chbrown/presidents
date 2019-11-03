@@ -1,9 +1,9 @@
 from collections import Counter, Mapping
+import json
 import spacy
 
 from .. import parse_date, tzinfos
 from ..text import tokenize, is_word, parse
-from ..readers import read_ldjson
 
 
 def iter_speech_counts(speech, synsets, stopwords=None):
@@ -147,10 +147,13 @@ class SpeechCollection(object):
         self.predicate = predicate
 
     def __iter__(self):
-        for speech_dict in read_ldjson(*self.filepaths):
-            speech = Speech(**speech_dict)
-            if self.predicate(speech):
-                yield speech
+        for filepath in self.filepaths:
+            with open(filepath) as fp:
+                for line in fp:
+                    speech_dict = json.loads(line)
+                    speech = Speech(**speech_dict)
+                    if self.predicate(speech):
+                        yield speech
 
     def __len__(self):
         return len(self.speeches)

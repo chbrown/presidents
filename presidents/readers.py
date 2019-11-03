@@ -1,4 +1,3 @@
-import json
 
 
 def read_lines(*filepaths):
@@ -18,11 +17,3 @@ def read_strings(*filepaths):
     '''
     for line in read_lines(*filepaths):
         yield line.rstrip()
-
-
-def read_ldjson(*filepaths):
-    '''
-    Read each line from each file in `filepaths` as a JSON object
-    '''
-    for line in read_lines(*filepaths):
-        yield json.loads(line)
