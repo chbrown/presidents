@@ -11,10 +11,8 @@
 
 These instructions assume you already have Python 3 installed.
 
-The scrapers rely on the `requests`, `BeautifulSoup4`, and `python-dateutil` libraries (among others),
-with the Jupyter notebooks requiring many more.
-
-You'll need to install a few non-Python dependencies on your system:
+In addition to the Python packages installed in the next section,
+you'll need to install a few non-Python dependencies on your system:
 
 * On macOS with [Homebrew](https://brew.sh/):
 
@@ -33,13 +31,16 @@ Once you have Node.js & `npm` installed:
 
     npm install -g vega vega-lite
 
+Get the LIWC 2007 dictionary (see [`liwc-python`](https://github.com/chbrown/liwc-python) for details) and move it to:
+
+    /usr/local/data/liwc_2007.dic
 
 ### Python dependencies and environment
 
 It's recommended to sandbox everything into a [virtualenv](https://virtualenv.pypa.io/en/stable/),
 which makes installation more predictable / reliable:
 
-    sudo pip install -U virtualenv
+    pip install -U virtualenv
     virtualenv ~/presidents-venv
     source ~/presidents-venv/bin/activate
 
@@ -48,29 +49,21 @@ Now that you've activated the virtualenv, get the code:
     git clone https://github.com/chbrown/presidents ~/presidents
     cd ~/presidents
 
-To install the required Python libraries:
+The scrapers rely on the `requests`, `BeautifulSoup4`, and `python-dateutil` libraries (among others),
+with the Jupyter notebooks requiring many more. To install these:
 
     pip install -r requirements.txt
 
-To install the language model for [`spaCy`](https://spacy.io/docs/):
+Then, install `presidents` as a package so that Jupyter Lab can import and use its modules:
 
-    python -m spacy download en_core_web_md
+    pip install -e .
 
-To prepare the data for reading from notebooks:
+Start the Jupyter Lab server:
 
-    make data/tapp/all.local-cache.json
-
-Get the LIWC 2007 dictionary (see [`liwc-python`](https://github.com/chbrown/liwc-python) for details) and move it to:
-
-    /usr/local/data/liwc_2007.dic
-
-To start a Jupyter notebook server:
-
-    export PYTHONPATH=~/presidents
-    jupyter notebook notebooks/
+    jupyter lab notebooks
 
 
 ## License
 
-Copyright © 2017–2018 Christopher Brown.
-[MIT Licensed](https://chbrown.github.io/licenses/MIT/#2017-2018).
+Copyright © 2017–2019 Christopher Brown.
+[MIT Licensed](https://chbrown.github.io/licenses/MIT/#2017-2019).

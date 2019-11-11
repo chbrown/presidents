@@ -5,9 +5,7 @@ SCRAPE := python -m presidents.scraping.cli
 # Facilities
 # ==========
 
-.PHONY: install clean check
-install:
-	pwd > /usr/local/lib/python2.7/site-packages/presidents.pth
+.PHONY: clean check
 
 clean:
 	rm -f presidents/**/*.pyc
