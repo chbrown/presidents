@@ -57,3 +57,15 @@ def calculate_election_day(inauguration_date: date) -> date:
     # weekday() returns 0 for Monday
     first_monday = date(year, 11, 1 + (7 - november_1.weekday()))
     return date(year, 11, first_monday.day + 1)
+
+
+def elide(text: str, max_chars: int = 280) -> str:
+    """
+    Return a string that is at most `max_chars` long.
+    """
+    n_chars = len(text)
+    if n_chars <= max_chars:
+        return text
+    # too long; truncate and add ellipsis and total
+    summary = f"… ({n_chars:,} characters total)"
+    return text[:max_chars - len(summary)] + summary
