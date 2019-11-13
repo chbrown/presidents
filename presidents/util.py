@@ -1,6 +1,7 @@
 from datetime import date
 from typing import Optional
 import logging
+import re
 
 import dateutil.parser
 import dateutil.tz
@@ -69,3 +70,20 @@ def elide(text: str, max_chars: int = 280) -> str:
     # too long; truncate and add ellipsis and total
     summary = f"… ({n_chars:,} characters total)"
     return text[:max_chars - len(summary)] + summary
+
+
+def slugify(text: str) -> str:
+    """
+    Simplify `text` into a string containing only lowercase word characters.
+
+    The result will (roughly) match the regex: /^[0-9a-z][0-9a-z_]*[0-9a-z]$/
+    """
+    # 1. lowercase
+    text = text.lower()
+    # 2. collapse hyphens separating words
+    text = re.sub(r"\b-\b", "", text)
+    # 3. replace everything but alphanumerics with underscores
+    text = re.sub(r"[^0-9a-z]+", "_", text)
+    # 4. trim trailing underscores
+    text = text.strip("_")
+    return text
