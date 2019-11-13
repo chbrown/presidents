@@ -1,11 +1,14 @@
+import logging
 import re
 from datetime import datetime
+
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 import requests
 
-from . import get_soup
-from .. import logger
+from presidents.scraping import get_soup
+
+logger = logging.getLogger(__name__)
 
 base_url = 'http://millercenter.org'
 
@@ -36,7 +39,7 @@ def _iter_paragraphs(transcript):
     for child in transcript.children:
         if child.name == 'h2' and child.string == 'Transcript':
             continue
-        elif isinstance(child, NavigableString):
+        if isinstance(child, NavigableString):
             yield str(child)
         else:
             for subchild in child.children:
@@ -53,7 +56,9 @@ def fetch_speeches():
         speech_url = base_url + href
         speech_html = requests.get(speech_url).text
         # Lincoln's "Cooper Union Address" has some issues :(
-        speech_html = speech_html.replace('<div id="_mcePaste" style="position: absolute; left: -10000px; top: 120px; width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">', '<p>')
+        speech_html = speech_html.replace(
+            '<div id="_mcePaste" style="position: absolute; left: -10000px; top: 120px; '
+            'width: 1px; height: 1px; overflow-x: hidden; overflow-y: hidden;">', '<p>')
         soup = BeautifulSoup(speech_html)
         # Herbert Hoover's "Campaign speech in Indianapolis, Indiana" has even worse issues :(
         if author == 'Herbert Hoover' and title == 'Campaign speech in Indianapolis, Indiana.':

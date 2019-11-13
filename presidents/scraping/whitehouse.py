@@ -1,8 +1,11 @@
 from urllib.parse import urljoin
+import logging
 import requests
 
-from . import get_soup, iter_lines
-from .. import logger, parse_date
+from presidents.scraping import get_soup, iter_lines
+from presidents.util import parse_date
+
+logger = logging.getLogger(__name__)
 
 base_url = 'https://www.whitehouse.gov'
 
@@ -13,7 +16,7 @@ def _fetch_page(url):
     # heading_subtitle = soup.select_one('.heading-subtitle')
     press_article_date = soup.select_one('.press-article-date')
     date = press_article_date.get_text()
-    title = soup.select_one('.pane-node-title')
+    # title = soup.select_one('.pane-node-title')
     content = soup.select_one('#content-start')
     # body = content.select_one('.forall-body.field-type-text-long')
     bodies = content.select('.forall-body')
@@ -88,11 +91,11 @@ briefing_room_groups = [
     # Legislation
     # these pages link to https://www.congress.gov/bill/115th-congress/house-bill/...
     # TODO: add parser for those pages and re-include these groups
-    #'pending-legislation',
-    #'signed-legislation',
-    #'vetoed-legislation',
+    # 'pending-legislation',
+    # 'signed-legislation',
+    # 'vetoed-legislation',
     # Nominations & Appointments
-    #'nominations-and-appointments'
+    # 'nominations-and-appointments'
     # Disclosures
     # ... no data yet available
 ]

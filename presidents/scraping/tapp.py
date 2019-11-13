@@ -1,14 +1,16 @@
-import os
 import re
 import json
+import logging
 from datetime import datetime
-from pathlib import Path
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 
-from . import get_soup, get_html, iter_lines
-from .. import logger, parse_date, root
+from presidents import DATA_DIR
+from presidents.util import parse_date
+from presidents.scraping import get_soup, get_html, iter_lines
+
+logger = logging.getLogger(__name__)
 
 base_url = 'http://www.presidency.ucsb.edu'
 
@@ -145,7 +147,7 @@ def fetch(pid):
 
 
 def read_local_cache():
-    all_json_path = os.path.join(root, 'data', 'tapp', 'all.local-cache.json')
+    all_json_path = DATA_DIR / 'tapp' / 'all.local-cache.json'
     with open(all_json_path) as fp:
         for line in fp:
             yield json.loads(line)
@@ -169,7 +171,7 @@ def _get_paragraph_lines(p):
     for child in p.children:
         if child.name == 'br':
             continue
-        elif isinstance(child, NavigableString):
+        if isinstance(child, NavigableString):
             yield str(child)
         else:
             yield child.get_text()
@@ -203,7 +205,7 @@ def fetch_election_pids(year):
         if paragraphs:
             info_paragraph, links_paragraph = paragraphs
             # candidate is unused, in this formulation
-            candidate = _get_candidate_info(info_paragraph)
+            _candidate = _get_candidate_info(info_paragraph)
             # Parse links to speeches / statements / press releases / etc.
             for anchor in links_paragraph.find_all('a'):
                 category = anchor.get_text()
@@ -258,7 +260,7 @@ def _get_records_found(soup):
 
 def read_category_pids(*category_ids):
     for category_id in category_ids:
-        pids_path = Path(root) / 'data' / 'tapp' / 'category' / f'{category_id}.pids'
+        pids_path = DATA_DIR / 'tapp' / 'category' / f'{category_id}.pids'
         yield from pids_path.read_text().splitlines()
 
 
@@ -271,7 +273,7 @@ def read_president_pids(president):
     '''
     Read all the pids locally recorded for the given president id (their ordinal number).
     '''
-    pids_path = Path(root) / 'data' / 'tapp' / 'president' / f'{president}.pids'
+    pids_path = DATA_DIR / 'tapp' / 'president' / f'{president}.pids'
     yield from pids_path.read_text().splitlines()
 
 

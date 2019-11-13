@@ -1,13 +1,14 @@
+import logging
 import os
 import re
 import warnings
 
-import requests
-import requests_cache
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
+import requests
+import requests_cache
 
-from .. import logger
+logger = logging.getLogger(__name__)
 
 requests_cache_filepath = os.getenv('PYTHON_REQUESTS_CACHE', '/tmp/python-requests_cache')
 requests_cache.install_cache(requests_cache_filepath)

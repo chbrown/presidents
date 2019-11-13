@@ -1,5 +1,5 @@
-from . import get_soup
-from .. import parse_date
+from presidents.scraping import get_soup
+from presidents.util import parse_date
 
 base_url = 'http://abcnews.go.com'
 
@@ -22,7 +22,7 @@ def fetch(page_url):
     '''
     url = page_url
     if not url.startswith(base_url):
-        url = base_url + '/' + url.lstrip('/')
+        url = f"{base_url}/{url.lstrip('/')}"
     soup = get_soup(url)
     timestamp_string = soup.find(class_='timestamp').get_text()
     return {

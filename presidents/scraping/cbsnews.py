@@ -1,5 +1,5 @@
-from . import get_soup
-from .. import parse_date, tzinfos
+from presidents.scraping import get_soup
+from presidents.util import parse_date, tzinfos
 
 base_url = 'http://www.cbsnews.com'
 

@@ -1,7 +1,7 @@
 from bs4.element import NavigableString
 
-from . import get_soup, iter_datalist_pairs
-from .. import parse_date
+from presidents.scraping import get_soup, iter_datalist_pairs
+from presidents.util import parse_date
 
 
 def _iter_transcript_paragraph_strings(element):
