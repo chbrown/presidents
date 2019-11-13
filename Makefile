@@ -1,6 +1,6 @@
 all: data/millercenter/speeches.json data/tapp/election2016.json data/tapp/inaugurals.json
 
-SCRAPE := python -m presidents.scraping.cli
+SCRAPE := python -m presidents.scraping
 
 # Facilities
 # ==========
