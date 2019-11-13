@@ -1,6 +1,10 @@
+from collections import OrderedDict
+from collections.abc import Hashable
 from datetime import date
+from functools import reduce
 from typing import Optional
 import logging
+import operator
 import re
 
 import dateutil.parser
@@ -87,3 +91,10 @@ def slugify(text: str) -> str:
     # 4. trim trailing underscores
     text = text.strip("_")
     return text
+
+
+class hashabledict(OrderedDict, Hashable):
+    __repr__ = dict.__repr__
+
+    def __hash__(self) -> int:
+        return reduce(operator.xor, map(hash, self.items()))
