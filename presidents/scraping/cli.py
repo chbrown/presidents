@@ -1,11 +1,13 @@
-import sys
-import json
 import argparse
+import json
 import logging
+import sys
+
 from cytoolz import unique
 
-from .. import logger
 from . import abcnews, cbsnews, cspan, millercenter, tapp, whitehouse
+
+logger = logging.getLogger(__name__)
 
 # each command should be a function from an argparse opts object to an iterable
 # of standard speech dicts
