@@ -1,82 +1,103 @@
-import operator
-import itertools
-from functools import reduce
-import re
 from collections import Counter
+from functools import lru_cache, reduce
+from typing import Callable, Dict, Iterable, Iterator, List, Tuple, TypeVar
+import itertools
+import logging
+import operator
+
+from spacy.tokens import Doc, Token
+from spacy.lexeme import Lexeme
+import cytoolz as toolz
 import spacy
 
-from . import logger
-from .models import nlp, parse, is_word
+from presidents.stopwords import contraction_suffixes
 
-_non_linguistic = [
-    'applause', 'cheers and applause', 'laughter',
-    'booing', 'boos', 'crosstalk', 'inaudible', 'silence']
-_non_linguistic_pattern = r'\[(' + '|'.join(_non_linguistic) + r')\]'
+logger = logging.getLogger(__name__)
 
 
-def tokenize(s, stopwords=None):
-    # normalize abbreviations to avoid stranded initials
-    s = re.sub(r'(?:[A-Z]\.)+', lambda m: m.group(0).replace('.', ''), s)
-    # normalize numbers to avoid 000 turning up as a significant token
-    s = re.sub(r',(\d{3})\b', r'\1', s)
-    # leave out non-linguistic content
-    s = re.sub(_non_linguistic_pattern, ' ', s, flags=re.I)
-    # "justice" gets special treatment
-    s = re.sub(r'Chief Justice', ' ', s)
-    # replace all non-alphanumerics with spaces
-    s = re.sub(r'[^\w]', ' ', s)
-    for token in s.lower().strip().split():
-        if stopwords is None or token not in stopwords:
-            yield token
+@lru_cache()
+def load_nlp():
+    nlp = spacy.load('en_core_web_md', disable=['parser', 'ner'])
+    nlp.max_length = 10_000_000
+    # add missing stop words (contractions whose lemmas are stopwords, mostly)
+    for stopword_string in contraction_suffixes | {'going', 'getting', 'got'} | {'-PRON-'}:
+        nlp.vocab[stopword_string].is_stop = True
+    logger.info("Loaded %(lang)s-%(name)s with pipeline=%(pipeline)s (v%(version)s)", nlp.meta)
+    return nlp
 
 
-def iter_substantive_words(tokens):
-    '''
-    Convert a sequence of tokens (can be strings or spaCy Token instances)
-    into a (potentially shorter) sequence of lowercase strings.
-
-    Discards tokens that are OOV, punctuation, whitespace, digits,
-    or single letters (besides "a" and "I").
-    '''
-    for token in tokens:
-        # convert to spaCy Lexeme if needed
-        if not isinstance(token, (spacy.lexeme.Lexeme, spacy.tokens.Token)):
-            token = nlp.vocab[token]
-        # discard OOV, punctuation, spaces, and numbers
-        if not (token.is_oov or token.is_punct or token.is_space or token.is_digit):
-            text = token.text.lower()
-            # discard single letters
-            if len(text) > 1 or text in {'a', 'i'}:
-                yield text
+def _is_substantive(lexeme: Lexeme) -> bool:
+    return all((
+        not lexeme.is_oov,
+        not lexeme.is_punct,
+        not lexeme.is_space,
+        not lexeme.is_digit,
+        len(lexeme.text) > 1 or lexeme.text in {'A', "I", 'a', 'i'},
+    ))
 
 
-def token_counts(doc, attr_id=spacy.attrs.LOWER):
-    '''
+def iter_substantive_words(tokens: Iterable[Token]) -> List[str]:
+    """
+    Convert a sequence of tokens into a (potentially shorter) sequence of lowercase strings.
+
+    Discards tokens that are OOV, punctuation, whitespace, digits, or single letters (besides "a" and "I").
+    """
+    return [token.text.lower() for token in tokens if _is_substantive(token)]
+
+
+def _is_word(lexeme: Lexeme) -> bool:
+    """
+    Return true if the `lexeme` is neither a stop word, nor punctuation, nor whitespace.
+    """
+    return not (lexeme.is_stop or lexeme.is_punct or lexeme.is_space)
+
+
+def count_words_by(doc: Doc, attr_id: int = spacy.attrs.ORTH) -> Dict[str, int]:
+    """
     Get a dict mapping tokens to counts for the given spaCy document, `doc`.
-
-    By default the tokens are lowercased strings, but this can be customized
-    by supplying a different `attr_id` value.
-    '''
-    return {nlp.vocab.strings[string_id]: count
-            for string_id, count in doc.count_by(attr_id).items()
-            if is_word(string_id)}
-
-
-def token_freqs(doc, attr_id=spacy.attrs.LOWER):
-    '''
-    Like token_counts, but normalized so that all values sum to 1.
-    '''
-    doc_token_counts = token_counts(doc, attr_id)
-    total = sum(doc_token_counts.values())
-    return {token: count / total for token, count in doc_token_counts.items()}
+    By default the tokens are the observed strings, but this can be customized
+    by supplying a different `attr_id` value, like LOWER, for lowercased tokens.
+    """
+    # other popular attr_id values: spacy.attrs.LEMMA, spacy.attrs.LOWER
+    vocab = doc.vocab
+    counts = doc.count_by(attr_id)
+    return {
+        vocab.strings[attribute]: count
+        for attribute, count in counts.items()
+        if _is_word(vocab[attribute])
+    }
 
 
-def sentence_collocations(documents,
-                          test_token=is_word,
+def freq_words_by(doc: Doc, attr_id: int = spacy.attrs.ORTH) -> Dict[str, float]:
+    """
+    Like `count_words_by`, but normalized so that all values sum to 1.
+    """
+    counts = count_words_by(doc, attr_id)
+    total = sum(counts.values())
+    return {token: count / total for token, count in counts.items()}
+
+
+X = TypeVar("X")
+Y = TypeVar("Y")
+
+
+def collocations(
+    xs: Iterable[X],
+    test: Callable[[X], bool] = lambda _: True,
+    f: Callable[[X], Y] = toolz.identity,
+) -> Iterator[Tuple[Y, Y]]:
+    """
+    Return tuples for every pair of ys, where y = f(x) and x is discarded if ¬test(x)
+    """
+    # to keep only one order, use `combinations` instead of `permutations`
+    return itertools.permutations(sorted(f(x) for x in xs if test(x)), r=2)
+
+
+def sentence_collocations(docs: Iterable[Doc],
+                          test_token=_is_word,
                           map_token=lambda token: token.orth):
     '''
-    documents: can be a list of strings or spacy.tokens.doc.Doc instances
-    test_token: is a predicate that takes a Lexeme and returns True or False to
+    test_token: predicate that takes a Lexeme and returns True or False to
                 determine whether to include it or not
     map_token: function that takes a Lexeme and returns a value to use for the
                values in the collocation pairs it returns
@@ -85,55 +106,49 @@ def sentence_collocations(documents,
     token value is whatever map_token returns; potentially an integer id
     resolvable in spaCy's Language vocab
     '''
-    for document in documents:
-        for sent in parse(document).sents:
-            values = sorted(map_token(token) for token in sent if test_token(token))
-            # to keep only one order, use itertools.combinations instead of permutations
-            for value1, value2 in itertools.permutations(values, 2):
+    for doc in docs:
+        for sent in doc.sents:
+            for value1, value2 in collocations(sent, test_token, map_token):
                 if value1 != value2:
                     yield value1, value2
 
 
-def sentence_collocation_counts(documents,
-                                test_token=is_word,
-                                map_token=lambda token: token.orth):
-    '''
-    return Counter (mapping) of ((value1, value2), count) pairs
-    '''
-    return Counter(sentence_collocations(documents, test_token, map_token))
+# return Counter like {(value1, value2): count}
+sentence_collocation_counts = toolz.compose(Counter, sentence_collocations)
 
 
-def sentence_collocation_mapping(documents,
-                                 test_token=is_word,
+def sentence_collocation_mapping(docs: Iterable[Doc],
+                                 test_token=_is_word,
                                  map_token=lambda token: token.orth):
     '''
     iterates over pairs: value1 -> mapping of (value2 -> count)
     '''
     first = operator.itemgetter(0)
     second = operator.itemgetter(1)
-    pairs = sentence_collocations(documents, test_token, map_token)
+    pairs = sentence_collocations(docs, test_token, map_token)
     for value1, pairs in itertools.groupby(sorted(pairs, key=first), first):
         yield value1, Counter(map(second, pairs))
 
 
-def bootstrap_lexemes(lexemes, collocation_mapping, n):
+def bootstrap_lexemes(lexemes: Iterable[int], collocation_mapping: Dict[int, Counter], n: int) -> int:
     '''
     lexemes: integer ids
     collocation_mapping: dict/mapping of lexeme -> Counter(mapping of lexeme -> count)
     '''
-    collocation_counters = (collocation_mapping.get(lexeme, Counter()) for lexeme in lexemes)
-    combined_counters = reduce(operator.add, collocation_counters)
-    for collocated_lexeme, _ in combined_counters.most_common(n):
-        yield collocated_lexeme
+    counters = [collocation_mapping.get(lexeme, Counter()) for lexeme in lexemes]
+    total_counter = reduce(operator.add, counters)
+    for lexeme, _ in total_counter.most_common(n):
+        yield lexeme
 
 
-def bootstrap_strings(strings, collocation_mapping, n,
+def bootstrap_strings(strings: List[str], collocation_mapping: Dict[int, Counter], n: int,
                       map_token=lambda token: token.orth):
     '''
     tokens: list of strings to parse (usually, a list of a synset's tokens)
     collocation_mapping: dict/mapping of token -> Counter(mapping of token -> count)
     '''
-    lexemes = {map_token(token) for token in parse(' '.join(strings))}
+    nlp = load_nlp()
+    lexemes = {map_token(token) for token in nlp(' '.join(strings))}
     for lexeme in lexemes:
         yield nlp.vocab[lexeme].orth_
     collocated_lexemes = set(bootstrap_lexemes(lexemes, collocation_mapping, n))
@@ -141,7 +156,7 @@ def bootstrap_strings(strings, collocation_mapping, n,
         yield nlp.vocab[lexeme].orth_
 
 
-def context_spans(haystack_doc, needle_re, preceding_window, subsequent_window):
+def context_spans(haystack_doc: Doc, needle_re, preceding_window: int, subsequent_window: int):
     '''
     Return tuples for each (potentially overlapping) match of needle_re within haystack_doc,
     of the form (preceding_span, match_span, subsequent_span), where each *_span is a spaCy Span instance.
@@ -149,9 +164,10 @@ def context_spans(haystack_doc, needle_re, preceding_window, subsequent_window):
     TODO: use doc.char_span(start, end, label=0, vector=None), introduced in spaCy v2.0.0a10
     See https://github.com/explosion/spaCy/issues/1264 and https://github.com/explosion/spaCy/issues/1050
     '''
+    nlp = load_nlp()
     # haystack_idx_to_i maps each token's character index within the entire document to its index
     haystack_idx_to_i = {token.idx: token.i for token in haystack_doc}
-    #logger.info('Finished mapping {} haystack token offsets to indices'.format(len(haystack_idx_to_i)))
+    # logger.info('Finished mapping {} haystack token offsets to indices'.format(len(haystack_idx_to_i)))
     for match in needle_re.finditer(haystack_doc.text):
         # start, end = m.span()
         start = match.start()
@@ -163,7 +179,7 @@ def context_spans(haystack_doc, needle_re, preceding_window, subsequent_window):
             preceding_start = max(token_i - preceding_window, 0)
             # TODO: memoize this? most of the time group() will be the same, but
             # we need to check how long it is, in spaCy terms
-            match_length = len(nlp(match.group(), tag=False, parse=False, entity=False))
+            match_length = len(nlp(match.group(), disable=["tagger", "parser", "ner"]))
             subsequent_start = token_i + match_length
             subsequent_end = subsequent_start + subsequent_window
             yield (haystack_doc[preceding_start:token_i],
@@ -173,7 +189,7 @@ def context_spans(haystack_doc, needle_re, preceding_window, subsequent_window):
             logger.debug('Failed to find token at idx=%d', start)
 
 
-def context_tokens(haystack_doc, needle_re, preceding_window, subsequent_window):
+def context_tokens(haystack_doc: Doc, needle_re, preceding_window, subsequent_window: int):
     '''
     Iterate over all the Tokens in all the pre/post context Spans
     of all the matches of needle_re within haystack_doc.
