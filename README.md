@@ -1,6 +1,6 @@
 # Presidential data & analysis
 
-* The scrapers are all located in [`presidents/scraping/*.py`](presidents/scraping/).
+* The scrapers are all located in [`presidents/scrapers/*.py`](presidents/scrapers/).
 
   See [Sources](docs/Sources.md) for documentation on where and how the data was collected.
 
