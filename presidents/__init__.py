@@ -1,13 +1,7 @@
+from pathlib import Path
 import os
-import logging
 
-logging.basicConfig(level=logging.WARNING)
-logger = logging.getLogger('presidents')
-
-# `here` is the directory containing this file
-here = os.path.dirname(__file__) or os.curdir
-# `root` is the directory containing the "presidents" package
+# `ROOT_DIR` is the directory containing the "presidents" package
 # (i.e., the git repo root)
-root = os.path.dirname(here)
-
-
+ROOT_DIR = Path(os.path.dirname(__file__) or os.curdir).parent
+DATA_DIR = ROOT_DIR / "data"
